@@ -18,6 +18,29 @@ function contrast(rgb1, rgb2) {
     / (darkest + 0.05);
 }
 
+// Return color contrast grade based on contrast ratio
+// Ref: https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html
+function colorContrastRating(ratio) {
+  let rating = 0;
+  switch (true) {
+    case (ratio >= 7):
+      rating = 1;
+      break;
+    case (ratio >= 4.5) && (ratio < 7):
+      rating = 2;
+      break;
+    case (ratio >= 3) && (ratio < 4.5):
+      rating = 3;
+      break;
+    case (ratio < 3):
+      rating = 4;
+      break;
+    default:
+      break;
+  }
+  return rating;
+}
+
 // Convert HEX to RGB
 function hexToRgb(hex) {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -30,9 +53,9 @@ function hexToRgb(hex) {
     : null;
 }
 
-// function setPageBackgroundColor() {
-//   document.body.style.backgroundColor = "yellow";
-// }
+function setPageBackgroundColor() {
+  // document.body.style.backgroundColor = "yellow";
+}
 
 const chosenColors = [];
 const resultElement = document.getElementById('result');
@@ -40,17 +63,17 @@ const color1Element = document.getElementById('color1');
 const color2Element = document.getElementById('color2');
 
 document.getElementById('eyedropper').addEventListener('click', async (event) => {
-  // let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-  // chrome.scripting.executeScript({
-  //   target: { tabId: tab.id },
-  //   function: setPageBackgroundColor,
-  // });
-
   if (!window.EyeDropper) {
     resultElement.textContent = 'Your browser does not support the EyeDropper API';
     return;
   }
+
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    function: setPageBackgroundColor,
+  });
 
   const eyeDropper = new EyeDropper();
 
@@ -70,7 +93,8 @@ document.getElementById('eyedropper').addEventListener('click', async (event) =>
       const chosenColor1 = hexToRgb(chosenColors[0]);
       const chosenColor2 = hexToRgb(chosenColors[1]);
       const contrastRatio = contrast(chosenColor1, chosenColor2);
-      resultElement.textContent = `Contrast ratio: ${contrastRatio}`;
+      // resultElement.textContent = `Contrast ratio: ${contrastRatio}`;
+      resultElement.textContent = 
     }
   }).catch(e => {
     resultElement.textContent = e;
