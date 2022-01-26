@@ -21,19 +21,19 @@ function contrast(rgb1, rgb2) {
 // Return color contrast grade based on contrast ratio
 // Ref: https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html
 function colorContrastRating(ratio) {
-  let rating = 0;
+  let rating = "";
   switch (true) {
     case (ratio >= 7):
-      rating = 1;
+      rating = "Great!";
       break;
     case (ratio >= 4.5) && (ratio < 7):
-      rating = 2;
+      rating = "Good!";
       break;
     case (ratio >= 3) && (ratio < 4.5):
-      rating = 3;
+      rating = "Okay";
       break;
     case (ratio < 3):
-      rating = 4;
+      rating = "Poor";
       break;
     default:
       break;
@@ -94,7 +94,7 @@ document.getElementById('eyedropper').addEventListener('click', async (event) =>
       const chosenColor2 = hexToRgb(chosenColors[1]);
       const contrastRatio = contrast(chosenColor1, chosenColor2);
       // resultElement.textContent = `Contrast ratio: ${contrastRatio}`;
-      resultElement.textContent = 
+      resultElement.textContent = colorContrastRating(contrastRatio);
     }
   }).catch(e => {
     resultElement.textContent = e;
