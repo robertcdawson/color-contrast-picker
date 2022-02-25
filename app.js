@@ -84,10 +84,6 @@ document.getElementById('eyedropper').addEventListener('click', async (event) =>
   const eyeDropper = new EyeDropper();
 
   eyeDropper.open().then(result => {
-    // Reset resultElement and re-add result bar
-    // resultElement.innerHTML = '';
-    // resultElement.appendChild(resultBarParent);
-    
     if (chosenColors.length <= 1) {
       chosenColors.push(result.sRGBHex);
       console.log("chosenColors", chosenColors);
