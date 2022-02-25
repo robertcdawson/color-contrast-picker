@@ -1,5 +1,26 @@
+body {
+  background: #fff;
+  color: #000;
+  font-size: medium;
+  font-family: Helvetica, sans-serif;
+  letter-spacing: 1.5px;
+  margin: 0 0 1rem 0;
+}
+
+header {
+  background: #000;
+  color: #fff;
+  padding: 2px;
+  text-align: center;
+}
+
+h1 {
+  font-size: large;
+  font-weight: normal;
+}
+
 #eyedropperContainer {
-  padding: 1rem;
+  padding: 1rem 1rem 0 1rem;
 }
 
 #eyedropper {
@@ -20,6 +41,33 @@
   width: 50px;
   height: 50px;
   margin: 1rem;
+  background:
+    linear-gradient(45deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 43%, #ddd 45%, #ddd 55%, rgba(0, 0, 0, 0) 57%, rgba(0, 0, 0, 0) 100%),
+    linear-gradient(135deg, #fff 0%, #fff 43%, #ddd 45%, #ddd 55%, #fff 57%, #fff 100%);
   background-color: #fff;
   border: solid 1px #000;
+}
+
+.result-bar-parent {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border: solid 3px #eee;
+  border-radius: 10px;
+  background-color: #f6f6f6;
+}
+
+.result-bar {
+  width: 0%;
+  height: 1rem;
+  background-color: #000;
+  border-radius: 10px;
+  border: solid 1px #ccc;
+  transition-property: all;
+  transition-duration: 3s;
+}
+
+#result {
+  padding: 0 1rem;
 }
