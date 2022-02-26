@@ -83,11 +83,18 @@ document.getElementById('eyedropper').addEventListener('click', async (event) =>
 
   const eyeDropper = new EyeDropper();
 
+  if (chosenColors.length === 0) {
+    color2Element.classList.remove('colorHighlight');
+    color1Element.classList.add('colorHighlight');
+  } else {
+    color1Element.classList.remove('colorHighlight');
+    color2Element.classList.add('colorHighlight');
+  }
+
   eyeDropper.open().then(result => {
     if (chosenColors.length <= 1) {
       chosenColors.push(result.sRGBHex);
-      console.log("chosenColors", chosenColors);
-      console.log("chosenColors.length", chosenColors.length);
+      
       // Remove X background effect before adding color
       if (chosenColors.length === 1) {
         color1Element.style.background = 'transparent';

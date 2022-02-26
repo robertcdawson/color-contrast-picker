@@ -15,7 +15,7 @@ header {
 }
 
 h1 {
-  font-size: large;
+  font-size: medium;
   font-weight: normal;
 }
 
@@ -46,6 +46,10 @@ h1 {
     linear-gradient(135deg, #fff 0%, #fff 43%, #ddd 45%, #ddd 55%, #fff 57%, #fff 100%);
   background-color: #fff;
   border: solid 1px #000;
+}
+
+.colorHighlight {
+  box-shadow: 0px 0px 10px yellow;
 }
 
 .result-bar-parent {
