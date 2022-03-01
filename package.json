@@ -1,0 +1,27 @@
+{
+  "name": "color-contrast-picker",
+  "version": "0.1.1",
+  "description": "Color Contrast Picker is a color picker for color contrast.",
+  "main": "dist/bundle.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertcdawson/color-contrast-checker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robertcdawson/color-contrast-checker/issues"
+  },
+  "homepage": "https://github.com/robertcdawson/color-contrast-checker#readme",
+  "devDependencies": {
+    "css-minimizer-webpack-plugin": "^3.4.1",
+    "mini-css-extract-plugin": "^2.5.3",
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2"
+  }
+}
