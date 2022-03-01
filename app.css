@@ -19,6 +19,7 @@ header {
 h1 {
   font-size: medium;
   font-weight: bold;
+  margin: 0.5rem;
 }
 
 #eyedropperContainer {
@@ -27,7 +28,8 @@ h1 {
 
 #eyedropper {
   width: 100%;
-  height: 2rem;
+  height: auto;
+  padding: 0.5rem;
   font-size: 1rem;
   border-radius: 10px;
   border: solid 1px #000;
@@ -80,6 +82,20 @@ h1 {
   transition-duration: 3s;
 }
 
+#instructions,
 #result {
+  padding: 0 1rem;
+}
+
+#instructions {
+  font-size: 0.8rem;
+}
+
+#result {
+  font-size: 1rem;
+}
+
+#instructions ol {
+  margin: 0;
   padding: 0 1rem;
 }
