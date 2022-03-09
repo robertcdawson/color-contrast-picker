@@ -9,6 +9,8 @@
     "scripting"
   ],
   "action": {
+    "default_title": "Color Contrast Picker",
+    "default_icon": "img/icon128.png",
     "default_popup": "index.html"
   },
   "icons": {

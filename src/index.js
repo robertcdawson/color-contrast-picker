@@ -4,10 +4,6 @@ import {
   hexToRgb
 } from './utils';
 
-// function setPageBackgroundColor() {
-//   document.body.style.backgroundColor = "yellow";
-// }
-
 const chosenColors = [];
 const resultElement = document.getElementById('result');
 const color1Element = document.getElementById('color1');
@@ -27,11 +23,6 @@ document.getElementById('eyedropper').addEventListener('click', async (event) =>
   }
 
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-  // chrome.scripting.executeScript({
-  //   target: { tabId: tab.id },
-  //   function: setPageBackgroundColor,
-  // });
 
   const eyeDropper = new EyeDropper();
 
@@ -83,4 +74,30 @@ document.getElementById('eyedropper').addEventListener('click', async (event) =>
   }).catch(e => {
     resultElement.textContent = e;
   });
+});
+
+// Show instructions when clicking arrow
+document.getElementById('instructionsHideShow').addEventListener('click', (event) => {
+  event.preventDefault();
+
+  const instructionsArrow = document.getElementById('instructionsArrow');
+  const instructionsList = document.getElementById('instructionsList');
+
+  if (instructionsArrow.classList.contains('down')) {
+    instructionsArrow.classList.remove('down');
+    instructionsArrow.classList.add('right');
+  } else {
+    instructionsArrow.classList.remove('right');
+    instructionsArrow.classList.add('down');
+  }
+
+  console.log("instructionsList.classList", instructionsList.classList);
+
+  // if (instructionsList.classList.contains('visible')) {
+  //   instructionsList.classList.remove('visible');
+  // } else {
+  //   instructionsList.classList.add('visible');
+  // }
+
+  instructionsList.classList.toggle('visible');
 });

@@ -89,13 +89,52 @@ h1 {
 
 #instructions {
   font-size: 0.8rem;
+  color: #555;
 }
 
 #result {
   font-size: 1rem;
 }
 
-#instructions ol {
+#instructionsList {
   margin: 0;
   padding: 0 1rem;
+  visibility: hidden;
+  height: 0;
+}
+
+#instructionsList.visible {
+  visibility: visible;
+  height: auto;
+}
+
+#instructionsHideShow:hover {
+  cursor: pointer;
+}
+
+.arrow {
+  border: solid #555;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 2.5px;
+}
+
+.right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+
+.left {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+}
+
+.up {
+  transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+}
+
+.down {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
 }
