@@ -8,6 +8,7 @@ const chosenColors = [];
 const resultElement = document.getElementById('result');
 const color1Element = document.getElementById('color1');
 const color2Element = document.getElementById('color2');
+const eyedropperButton = document.getElementById('eyedropperButton');
 
 const resultBarParent = document.createElement('div');
 resultBarParent.classList.add('result-bar-parent');
@@ -16,13 +17,27 @@ resultBar.classList.add('result-bar');
 resultBarParent.appendChild(resultBar);
 resultElement.appendChild(resultBarParent);
 
-document.getElementById('eyedropper').addEventListener('click', async (event) => {
+eyedropperButton.addEventListener('click', async (event) => {
   if (!window.EyeDropper) {
     resultElement.textContent = 'Your browser does not support the EyeDropper API';
     return;
   }
 
-  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (eyedropperButton.textContent === 'Clear Colors') {
+    chosenColors.length = 0;
+    color1Element.removeAttribute("style");
+    color2Element.removeAttribute("style");
+    eyedropperButton.textContent = 'Select Color 1';
+    resultBar.style.width = '0%';
+    resultBar.style.backgroundColor = '#ffffff';
+    const resultDescription = resultElement.querySelector('.result-description');
+    if (resultDescription) {
+      resultElement.removeChild(resultDescription);
+    }
+    return;
+  }
+
+  // let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   const eyeDropper = new EyeDropper();
 
@@ -51,6 +66,13 @@ document.getElementById('eyedropper').addEventListener('click', async (event) =>
 
     color1Element.style.backgroundColor = chosenColors[0];
     color2Element.style.backgroundColor = chosenColors[1];
+
+    // Change button text per number of colors selected
+    if (chosenColors.length === 1) {
+      eyedropperButton.textContent = 'Select Color 2';
+    } else if (chosenColors.length === 2) {
+      eyedropperButton.textContent = 'Clear Colors';
+    }
 
     if (chosenColors.length === 2) {
       const chosenColor1 = hexToRgb(chosenColors[0]);
@@ -90,14 +112,6 @@ document.getElementById('instructionsHideShow').addEventListener('click', (event
     instructionsArrow.classList.remove('right');
     instructionsArrow.classList.add('down');
   }
-
-  console.log("instructionsList.classList", instructionsList.classList);
-
-  // if (instructionsList.classList.contains('visible')) {
-  //   instructionsList.classList.remove('visible');
-  // } else {
-  //   instructionsList.classList.add('visible');
-  // }
 
   instructionsList.classList.toggle('visible');
 });
