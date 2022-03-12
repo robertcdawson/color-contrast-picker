@@ -1,18 +1,39 @@
+/* Set page colors using :root */
+:root {
+  --main-bg-color: #fff;
+  --main-text-color: #000;
+  --arrow-color: #555;
+  --main-button-bg-color: #efefef;
+  --main-button-box-shadow-color: #dcdcdc;
+  --main-button-border-color: #999;
+  --main-button-hover-bg-color: #ebebeb;
+  --main-button-active-bg-color: #cbcbcb;
+  --main-button-hover-box-shadow-color: #ccc;
+  --main-button-active-box-shadow-color: #bcbcbc;
+  --result-bar-parent-bg-color: #f6f6f6;
+  --result-bar-parent-border-color: #eee;
+}
+
 body {
-  background: #fff;
-  color: #000;
+  background: var(--main-bg-color);
+  color: var(--main-text-color);
   font-size: medium;
   font-family: Helvetica, sans-serif;
   letter-spacing: 1.5px;
-  margin: 0 0 1rem 0;
+  margin: 0;
+  border: solid 6px var(--result-bar-parent-border-color);
+}
+
+main {
+  padding: 0 0 1rem 0;
 }
 
 header {
-  background: #fff;
-  color: #000;
+  background: var(--main-bg-color);
+  color: var(--main-text-color);
   padding: 2px;
   text-align: center;
-  border-bottom: solid 1px #000;
+  border: solid 1px var(--arrow-color);
   box-shadow: 0px 5px 5px rgb(0 0 0 / 10%);
 }
 
@@ -32,13 +53,21 @@ h1 {
   padding: 0.5rem;
   font-size: 1rem;
   border-radius: 10px;
-  border: solid 1px #000;
-  filter: drop-shadow(0 0 5px rgba(0 0 0 / 30%));
+  border: solid 1px var(--main-button-border-color);
+  box-shadow: inset 0px 0px 5px 3px var(--main-button-box-shadow-color);
+  background: var(--main-button-bg-color);
 }
 
 #eyedropperButton:hover {
   cursor: pointer;
-  filter: drop-shadow(0 0 5px rgba(255 255 0 / 100%));
+  background: var(--main-button-hover-bg-color);
+  box-shadow: inset 0px 0px 5px 3px var(--main-button-hover-box-shadow-color);
+}
+
+#eyedropperButton:active {
+  cursor: pointer;
+  background: var(--main-button-active-bg-color);
+  box-shadow: inset 0px 0px 5px 3px var(--main-button-active-box-shadow-color);
 }
 
 #colorContainer {
@@ -54,12 +83,8 @@ h1 {
   background:
     linear-gradient(45deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 43%, #ddd 45%, #ddd 55%, rgba(0, 0, 0, 0) 57%, rgba(0, 0, 0, 0) 100%),
     linear-gradient(135deg, #fff 0%, #fff 43%, #ddd 45%, #ddd 55%, #fff 57%, #fff 100%);
-  background-color: #fff;
-  border: solid 1px #000;
-}
-
-.colorHighlight {
-  box-shadow: 0px 0px 10px yellow;
+  background-color: var(--main-bg-color);
+  border: solid 1px var(--main-text-color);
 }
 
 .result-bar-parent {
@@ -67,17 +92,17 @@ h1 {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  border: solid 3px #eee;
+  border: solid 3px var(--result-bar-parent-border-color);
   border-radius: 10px;
-  background-color: #f6f6f6;
+  background-color: var(--result-bar-parent-bg-color);
 }
 
 .result-bar {
   width: 0%;
   height: 1rem;
-  background-color: #000;
+  background-color: var(--main-text-color);
   border-radius: 10px;
-  border: solid 1px #ccc;
+  border: solid 1px var(--main-button-hover-box-shadow-color);
   transition-property: all;
   transition-duration: 3s;
 }
@@ -89,7 +114,7 @@ h1 {
 
 #instructions {
   font-size: 0.8rem;
-  color: #555;
+  color: var(--arrow-color);
   text-align: center;
 }
 
@@ -120,7 +145,7 @@ h1 {
 }
 
 .arrow {
-  border: solid #555;
+  border: solid var(--arrow-color);
   border-width: 0 3px 3px 0;
   display: inline-block;
   padding: 2.5px;

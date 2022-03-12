@@ -36,18 +36,8 @@ eyedropperButton.addEventListener('click', async (event) => {
     }
     return;
   }
-
-  // let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
+  
   const eyeDropper = new EyeDropper();
-
-  if (chosenColors.length === 0) {
-    color2Element.classList.remove('colorHighlight');
-    color1Element.classList.add('colorHighlight');
-  } else {
-    color1Element.classList.remove('colorHighlight');
-    color2Element.classList.add('colorHighlight');
-  }
 
   eyeDropper.open().then(result => {
     if (chosenColors.length <= 1) {
