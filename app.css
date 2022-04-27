@@ -25,7 +25,7 @@ body {
 }
 
 main {
-  padding: 0 0 1rem 0;
+  padding: 1rem;
 }
 
 header {
@@ -44,7 +44,7 @@ h1 {
 }
 
 #eyedropperContainer {
-  padding: 1rem 1rem 0 1rem;
+  padding: 0 1rem;
 }
 
 #eyedropperButton {
@@ -134,6 +134,18 @@ h1 {
   visibility: visible;
   height: auto;
   margin: 1rem 0 0 0;
+}
+
+#howItWorks {
+  visibility: hidden;
+  height: 0;
+  text-align: left;
+}
+
+#howItWorks.visible {
+  visibility: visible;
+  height: auto;
+  padding: 0 0 1rem 0;
 }
 
 #instructionsHideShow {
