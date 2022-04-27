@@ -1,4 +1,4 @@
-import { 
+import {
   getContrast,
   colorContrastRating,
   hexToRgb
@@ -36,7 +36,7 @@ eyedropperButton.addEventListener('click', async (event) => {
     }
     return;
   }
-  
+
   const eyeDropper = new EyeDropper();
 
   eyeDropper.open().then(result => {
@@ -77,10 +77,12 @@ eyedropperButton.addEventListener('click', async (event) => {
       const result = `<p class="result-description">${chosenColors[0]} and ${chosenColors[1]} have a contrast ratio of ${contrastRatio}, which is <strong>${rating}</strong>.</p>`;
       const resultDescription = resultElement.querySelector('.result-description');
 
+      // Remove old result description
       if (resultDescription) {
         resultElement.removeChild(resultDescription);
       }
 
+      // Add new result description
       resultElement.insertAdjacentHTML('beforeend', result);
     }
   }).catch(e => {
@@ -94,6 +96,7 @@ document.getElementById('instructionsHideShow').addEventListener('click', (event
 
   const instructionsArrow = document.getElementById('instructionsArrow');
   const instructionsList = document.getElementById('instructionsList');
+  const howItWorks = document.getElementById('howItWorks');
 
   if (instructionsArrow.classList.contains('down')) {
     instructionsArrow.classList.remove('down');
@@ -104,4 +107,13 @@ document.getElementById('instructionsHideShow').addEventListener('click', (event
   }
 
   instructionsList.classList.toggle('visible');
+  howItWorks.classList.toggle('visible');
+});
+
+// Open new tab when clicking documentation link
+document.getElementById('howItWorksLink1').addEventListener('click', (event) => {
+  event.preventDefault();
+
+  const howItWorksLink1 = document.getElementById('howItWorksLink1');
+  chrome.tabs.create({ active: true, url: `${howItWorksLink1.href}#rationale-for-the-ratios-chosen` });
 });
