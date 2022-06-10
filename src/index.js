@@ -4,12 +4,14 @@ import {
   hexToRgb
 } from './utils';
 
+// Variables
 const chosenColors = [];
 const resultElement = document.getElementById('result');
 const color1Element = document.getElementById('color1');
 const color2Element = document.getElementById('color2');
 const eyedropperButton = document.getElementById('eyedropperButton');
 
+// Create result bar
 const resultBarParent = document.createElement('div');
 resultBarParent.classList.add('result-bar-parent');
 const resultBar = document.createElement('div');

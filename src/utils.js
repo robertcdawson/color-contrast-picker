@@ -1,3 +1,4 @@
+// Calculate a pixel's luminance.
 function luminance(r, g, b) {
   const a = [r, g, b].map(function (v) {
     v /= 255;
@@ -8,6 +9,7 @@ function luminance(r, g, b) {
   return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
 }
 
+// Calculate the contrast ratio between two colors.
 export function getContrast(rgb1, rgb2) {
   const lum1 = luminance(rgb1[0], rgb1[1], rgb1[2]);
   const lum2 = luminance(rgb2[0], rgb2[1], rgb2[2]);
@@ -17,7 +19,7 @@ export function getContrast(rgb1, rgb2) {
 }
 
 // Return color contrast grade based on contrast ratio
-// Ref: https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html
+// Reference: https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html
 export function colorContrastRating(ratio) {
   let rating = "";
   switch (true) {
@@ -39,7 +41,7 @@ export function colorContrastRating(ratio) {
   return rating;
 }
 
-// Convert HEX to RGB
+// Convert HEX to RGB.
 export function hexToRgb(hex) {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
