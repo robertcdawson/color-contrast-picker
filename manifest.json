@@ -4,9 +4,7 @@
   "version": "1.0",
   "manifest_version": 3,
   "permissions": [
-    "storage",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
   "action": {
     "default_title": "Color Contrast Picker",
