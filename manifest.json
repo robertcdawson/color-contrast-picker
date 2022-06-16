@@ -1,7 +1,7 @@
 {
   "name": "Color Contrast Picker",
   "description": "Check color contrast for any two elements on the page.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "manifest_version": 3,
   "action": {
     "default_title": "Color Contrast Picker",
