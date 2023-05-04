@@ -11,4 +11,6 @@ jobs:
         id: url-status-code-checker
         run: |
           chmod +x ./urlstatus.sh
-          echo "OUTPUT=$(./urlstatus.sh)" >> $GITHUB_OUTPUT
+          echo "OUTPUT=$(./urlstatus.sh)" >> $GITHUB_OUTPU
+      - name: Get output
+        run: echo "${{ steps.url-status-code-checker.outputs.OUTPUT }}"
