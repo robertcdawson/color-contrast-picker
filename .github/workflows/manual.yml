@@ -11,3 +11,4 @@ jobs:
         run: |
           chmod +x ./urlstatus.sh
           ./urlstatus.sh
+          ./urlstatus.sh
