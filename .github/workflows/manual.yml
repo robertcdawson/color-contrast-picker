@@ -11,4 +11,4 @@ jobs:
         id: url-status-code-checker
         run: |
           chmod +x ./urlstatus.sh
-          ./urlstatus.sh >> "$GITHUB_OUTPUT"
+          echo "OUTPUT=$(./urlstatus.sh)" >> $GITHUB_OUTPUT
