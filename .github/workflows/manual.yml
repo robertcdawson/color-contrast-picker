@@ -1,0 +1,13 @@
+name: URL Status Code Checker
+on:
+  workflow_dispatch:
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run script
+        run: |
+          chmod +x ./urlstatus.sh
+          ./urlstatus.sh
