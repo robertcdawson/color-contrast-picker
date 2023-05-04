@@ -1,4 +1,5 @@
 name: URL Status Code Checker
+id: url-status-code-checker
 on:
   workflow_dispatch:
 jobs:
@@ -10,4 +11,4 @@ jobs:
       - name: Run script
         run: |
           chmod +x ./urlstatus.sh
-          ./urlstatus.sh
+          ./urlstatus.sh >> "$GITHUB_OUTPUT"
