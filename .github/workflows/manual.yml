@@ -1,16 +1,24 @@
 name: URL Status Code Checker
 on:
   workflow_dispatch:
+    inputs:
+      file:
+        description: 'Upload .txt file containing URLs'
+        required: true
 jobs:
-  run-script:
+  check-status-codes:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Run script
-        id: url-status-code-checker
+      - name: Read file contents
+        id: read-file
         run: |
-          chmod +x ./urlstatus.sh
-          echo "OUTPUT=$(./urlstatus.sh)" >> "$GITHUB_OUTPUT"
-      - name: Get output
-        run: echo "${{ steps.url-status-code-checker.outputs.OUTPUT }}"
+          content=$(cat ${{ github.event.inputs.file }})
+          echo: "::set-output name=content::$content"
+      - name: Check status codes
+        run: |
+          urls=(${{ steps.read-file.outputs.content }})
+          for url in "${urls[@]}"
+          do
+            status_code=$(curl -o /dev/null -s -w "%{http_code}\n" $url)
+            echo "$url - $status_code"
+          done
