@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       urls:
-        description: 'Enter URLs separated by lines'
+        description: 'Enter URLs separated by spaces'
         required: true
 jobs:
   check-status-codes:
