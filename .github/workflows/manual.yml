@@ -2,21 +2,16 @@ name: URL Status Code Checker
 on:
   workflow_dispatch:
     inputs:
-      file:
-        description: 'Upload .txt file containing URLs'
+      urls:
+        description: 'Enter URLs separated by lines'
         required: true
 jobs:
   check-status-codes:
     runs-on: ubuntu-latest
     steps:
-      - name: Read file contents
-        id: read-file
-        run: |
-          content=$(cat ${{ github.event.inputs.file }})
-          echo: "::set-output name=content::$content"
       - name: Check status codes
         run: |
-          urls=(${{ steps.read-file.outputs.content }})
+          urls=(${{ github.event.inputs.urls }})
           for url in "${urls[@]}"
           do
             status_code=$(curl -o /dev/null -s -w "%{http_code}\n" $url)
