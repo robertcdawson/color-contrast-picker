@@ -1,0 +1,24 @@
+name: URL Status Code Checker
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: 'Enter URLs separated by spaces'
+        required: true
+jobs:
+  check-status-codes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check status codes
+        run: |
+          urls=(${{ github.event.inputs.urls }})
+          for url in "${urls[@]}"
+          do
+            status_code=$(curl -o /dev/null -s -w "%{http_code}\n" $url)
+            exit_code=$?
+            if [ $exit_code -ne 0 ]; then
+              echo "Error: Failed to check status code for $url"
+            else
+              echo "$url - $status_code"
+            fi
+          done
