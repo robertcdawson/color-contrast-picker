@@ -1,14 +1,16 @@
-# Color Contrast Checker - A Chrome Extension
+# WCAG Color Contrast Checker - A Chrome Extension
+
+![Version](https://img.shields.io/badge/version-0.2.0-blue)
 
 ![Status: Not Functioning](https://img.shields.io/badge/Status-Not%20Functioning-red)
 
-This is a simple Chrome extension to check color contrast ratios for accessibility compliance.
+This is a simple Chrome extension to check color contrast ratios for accessibility WCAG compliance.
 
 ## Project Status
 
-:warning: **Warning:** The project builds successfully, but core functionality is currently not working as expected. We are actively investigating. And by "we" I mean myself and our future overlords. And by "actively" I mean when time allows, which isn't often these days.
+:warning: **Warning:** The project builds successfully, but core functionality is currently not working as expected. We are actively investigating. And by "we" I mean myself and our future overlords. And by "actively" I mean when time allows, which isn't often lately.
 
-🚀 <span style="color: #4CAF50;">All advice welcome!</span>
+🚀 <span style="color: #4CAF50;">Advice welcome!</span>
 
 ## Description
 
