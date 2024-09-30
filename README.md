@@ -4,7 +4,9 @@
 
 ![Status: Not Functioning](https://img.shields.io/badge/Status-Not%20Functioning-red)
 
-<img src="/img/screenshots/screenshot-092904.png" alt="WCAG Color Contrast Checker Interface" width="500">
+<p align="center">
+  <img src="/img/screenshots/screenshot-092904.png" alt="WCAG Color Contrast Checker Interface" width="500">
+</p>
 
 ## Project Status
 
