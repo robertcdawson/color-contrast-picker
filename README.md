@@ -4,6 +4,8 @@
 
 ![Status: Not Functioning](https://img.shields.io/badge/Status-Not%20Functioning-red)
 
+<img src="/img/screenshots/screenshot-092904.png" alt="WCAG Color Contrast Checker Interface" width="500">
+
 ## Project Status
 
 :warning: **Warning:** The project builds successfully, but core functionality is currently not working as expected. We are actively investigating. And by "we" I mean myself and our future overlords. And by "actively" I mean when time allows, which isn't often lately.
