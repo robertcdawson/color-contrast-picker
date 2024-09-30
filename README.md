@@ -2,7 +2,7 @@
 
 ![Status: Not Functioning](https://img.shields.io/badge/Status-Not%20Functioning-red)
 
-A simple web application to check color contrast ratios for accessibility compliance.
+This is a simple Chrome extension to check color contrast ratios for accessibility compliance.
 
 ## Project Status
 
