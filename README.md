@@ -6,11 +6,13 @@ A simple web application to check color contrast ratios for accessibility compli
 
 ## Project Status
 
-:warning: **Note:** While the project builds successfully, the core functionality is currently not working as expected. We are actively working on resolving these issues.
+:warning: **Warning:** The project builds successfully, but core functionality is currently not working as expected. We are actively investigating. And by "we" I mean myself and our future overlords. And by "actively" I mean when time allows, which isn't often these days.
+
+🚀 <span style="color: #4CAF50;">All advice welcome!</span>
 
 ## Description
 
-This tool allows users to select two colors using an eyedropper tool or manual input, and then calculates the contrast ratio between them. It helps designers and developers ensure their color choices meet WCAG accessibility standards.
+This Chrome extension allows users to select two colors using an eyedropper tool or manual input, and then calculates the contrast ratio between the colors, offering helpful WCAG information as a result. The goal of this tool is to help designers and developers meet WCAG accessibility standards for color contrast.
 
 ## Local Usage
 
