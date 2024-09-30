@@ -8,7 +8,7 @@
 
 :warning: **Warning:** The project builds successfully, but core functionality is currently not working as expected. We are actively investigating. And by "we" I mean myself and our future overlords. And by "actively" I mean when time allows, which isn't often lately.
 
-🚀 <code style="color: dodgerblue">**Advice welcome!**</code>
+🚀 <code>**Advice welcome!**</code>
 
 ## Description
 
