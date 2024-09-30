@@ -4,7 +4,7 @@
 
 ![Status: Not Functioning](https://img.shields.io/badge/Status-Not%20Functioning-red)
 
-This is a simple Chrome extension to check color contrast ratios for accessibility WCAG compliance.
+This is a simple Chrome extension to check color contrast ratios for WCAG accessibility compliance.
 
 ## Project Status
 
