@@ -1,184 +1,161 @@
-/* Set page colors using :root */
 :root {
-  --main-bg-color: #fff;
-  --main-text-color: #000;
-  --arrow-color: #555;
-  --main-button-bg-color: #efefef;
-  --main-button-box-shadow-color: #dcdcdc;
-  --main-button-border-color: #999;
-  --main-button-hover-bg-color: #ebebeb;
-  --main-button-active-bg-color: #cbcbcb;
-  --main-button-hover-box-shadow-color: #ccc;
-  --main-button-active-box-shadow-color: #bcbcbc;
-  --result-bar-parent-bg-color: #f6f6f6;
-  --result-bar-parent-border-color: #eee;
+  --main-bg-color: #f5f5f5;
+  --card-bg-color: #ffffff;
+  --main-text-color: #333333;
+  --accent-color: #6200ee;
+  --secondary-color: #03dac6;
+  --button-text-color: #ffffff;
 }
 
 body {
-  background: var(--main-bg-color);
+  font-family: 'Inter', sans-serif;
+  background-color: var(--main-bg-color);
   color: var(--main-text-color);
-  font-size: medium;
-  font-family: Helvetica, sans-serif;
-  letter-spacing: 1.5px;
+  width: 500px;
+  box-sizing: border-box;
+  line-height: 1.6;
   margin: 0;
-  border: solid 6px var(--result-bar-parent-border-color);
+  padding: 20px;
+  font-size: 16px;
 }
 
 main {
-  padding: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: var(--card-bg-color);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 header {
-  background: var(--main-bg-color);
-  color: var(--main-text-color);
-  padding: 2px;
   text-align: center;
-  border: solid 1px var(--arrow-color);
-  box-shadow: 0px 5px 5px rgb(0 0 0 / 10%);
+  margin-bottom: 20px;
 }
 
 h1 {
-  font-size: medium;
-  font-weight: bold;
-  margin: 0.5rem;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin: 0;
 }
 
-#eyedropperContainer {
-  padding: 0 1rem;
+h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 15px;
 }
 
-#eyedropperButton {
-  width: 100%;
-  height: auto;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 10px;
-  border: solid 1px var(--main-button-border-color);
-  box-shadow: inset 0px 0px 5px 3px var(--main-button-box-shadow-color);
-  background: var(--main-button-bg-color);
-}
-
-#eyedropperButton:hover {
-  cursor: pointer;
-  background: var(--main-button-hover-bg-color);
-  box-shadow: inset 0px 0px 5px 3px var(--main-button-hover-box-shadow-color);
-}
-
-#eyedropperButton:active {
-  cursor: pointer;
-  background: var(--main-button-active-bg-color);
-  box-shadow: inset 0px 0px 5px 3px var(--main-button-active-box-shadow-color);
+#instructions {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 18px;
 }
 
 #colorContainer {
   display: flex;
-  flex-direction: row;
-}
-
-#color1,
-#color2 {
-  width: 50px;
-  height: 50px;
-  margin: 1rem;
-  background:
-    linear-gradient(45deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 43%, #ddd 45%, #ddd 55%, rgba(0, 0, 0, 0) 57%, rgba(0, 0, 0, 0) 100%),
-    linear-gradient(135deg, #fff 0%, #fff 43%, #ddd 45%, #ddd 55%, #fff 57%, #fff 100%);
-  background-color: var(--main-bg-color);
-  border: solid 1px var(--main-text-color);
-}
-
-.result-bar-parent {
-  display: flex;
-  flex-direction: row;
   justify-content: space-between;
-  align-items: center;
-  border: solid 3px var(--result-bar-parent-border-color);
-  border-radius: 10px;
-  background-color: var(--result-bar-parent-bg-color);
+  margin-bottom: 20px;
 }
 
-.result-bar {
-  width: 0%;
-  height: 1rem;
-  background-color: var(--main-text-color);
-  border-radius: 10px;
-  border: solid 1px var(--main-button-hover-box-shadow-color);
-  transition-property: all;
-  transition-duration: 3s;
-}
-
-#instructions,
-#result {
-  padding: 0 1rem;
-}
-
-#instructions {
-  font-size: 0.8rem;
-  color: var(--arrow-color);
+.color-box {
   text-align: center;
 }
 
-#result {
-  font-size: 1rem;
-}
-
-#instructionsList {
-  text-align: left;
-  margin: 0;
-  padding: 0 1rem;
-  visibility: hidden;
-  height: 0;
-}
-
-#instructionsList.visible {
-  visibility: visible;
-  height: auto;
-  margin: 1rem 0 0 0;
-}
-
-#howItWorks {
-  visibility: hidden;
-  height: 0;
-  text-align: left;
-}
-
-#howItWorks.visible {
-  visibility: visible;
-  height: auto;
-  padding: 0 0 1rem 0;
-}
-
-#instructionsHideShow {
-  margin: 1rem 0 0 0;
-}
-
-#instructionsHideShow:hover {
+.color-square {
+  width: 90px;
+  height: 90px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
-.arrow {
-  border: solid var(--arrow-color);
-  border-width: 0 3px 3px 0;
+.color-square:hover {
+  transform: scale(1.05);
+}
+
+.color-square:focus {
+  outline: 3px solid var(--accent-color);
+}
+
+.color-label {
+  font-size: 16px;
+}
+
+.color-input {
+  width: 80px;
+  margin-top: 5px;
+  padding: 5px;
+  border: 1px solid var(--main-text-color);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.option-group {
+  margin-bottom: 15px;
+}
+
+input[type="radio"], input[type="number"], select {
+  margin-right: 10px;
+}
+
+#result {
+  background-color: var(--secondary-color);
+  color: var(--main-text-color);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+#learnMore {
+  margin-top: 30px;
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.help-icon {
   display: inline-block;
-  padding: 2.5px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--accent-color);
+  color: var(--button-text-color);
+  border-radius: 50%;
+  text-align: center;
+  line-height: 18px;
+  font-size: 14px;
+  cursor: help;
+  margin-left: 5px;
 }
 
-.right {
-  transform: rotate(-45deg);
-  -webkit-transform: rotate(-45deg);
+.help-icon:hover::after {
+  content: attr(title);
+  position: absolute;
+  background: var(--card-bg-color);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  color: var(--main-text-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  white-space: nowrap;
 }
 
-.left {
-  transform: rotate(135deg);
-  -webkit-transform: rotate(135deg);
-}
-
-.up {
-  transform: rotate(-135deg);
-  -webkit-transform: rotate(-135deg);
-}
-
-.down {
-  transform: rotate(45deg);
-  -webkit-transform: rotate(45deg);
+/* Add styles for high contrast mode */
+@media (prefers-contrast: high) {
+  body {
+    --main-bg-color: #000000;
+    --card-bg-color: #ffffff;
+    --main-text-color: #000000;
+    --accent-color: #0000ff;
+  }
 }

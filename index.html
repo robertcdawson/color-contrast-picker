@@ -6,7 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Color Contrast Picker</title>
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" type="text/css" href="app.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -14,33 +15,72 @@
     <header>
       <h1>Color Contrast Picker</h1>
     </header>
-    <div id="instructions">
-      <p id="instructionsHideShow">
-        <strong>Instructions <i class="arrow right" id="instructionsArrow"
-            title="Hide and show instructions"></i></strong>
-      </p>
-      <ol id="instructionsList">
-        <li>Select a color on this page</li>
-        <li>Select a second color</li>
-        <li>See your result!</li>
-      </ol>
-      <div id="howItWorks">
-        <p>Ratios:</p>
-        <p>7:1 = great<br />
-          3:1 = okay<br />
-          4.5:1 = good</p>
-        <p><a id="howItWorksLink1" href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html">Learn
-            more.</a></p>
+    <p id="instructions">Pick colors to detect contrast.</p>
+    <section id="colorPicker">
+      <div id="colorContainer">
+        <div class="color-box" id="color1Container">
+          <div id="color1" class="color-square"></div>
+          <input type="text" id="color1Input" class="color-input" placeholder="#RRGGBB"
+            aria-label="Enter first color hex value">
+          <span class="color-label">Color 1</span>
+        </div>
+        <div class="color-box" id="color2Container">
+          <div id="color2" class="color-square"></div>
+          <input type="text" id="color2Input" class="color-input" placeholder="#RRGGBB"
+            aria-label="Enter second color hex value">
+          <span class="color-label">Color 2</span>
+        </div>
       </div>
+    </section>
+    <section id="complianceOptions">
+      <h2>Compliance Level <span class="help-icon" title="Choose the WCAG compliance level to check against">?</span>
+      </h2>
+      <div class="option-group">
+        <input type="radio" id="levelAA" name="complianceLevel" value="AA" checked>
+        <label for="levelAA">AA</label>
+      </div>
+      <div class="option-group">
+        <input type="radio" id="levelAAA" name="complianceLevel" value="AAA">
+        <label for="levelAAA">AAA</label>
+      </div>
+    </section>
+    <section id="textOptions">
+      <h2>Text Options <span class="help-icon" title="Select text size to determine appropriate contrast ratio">?</span>
+      </h2>
+      <div class="option-group">
+        <input type="radio" id="normalText" name="textSize" value="normal" checked>
+        <label for="normalText">Normal Text</label>
+      </div>
+      <div class="option-group">
+        <input type="radio" id="largeText" name="textSize" value="large">
+        <label for="largeText">Large Text</label>
+      </div>
+    </section>
+    <section id="result" style="display: none;">
+      <h2>Result</h2>
+      <p id="resultText"></p>
+    </section>
+    <section id="resources">
+      <h2>Learn More</h2>
+      <ul>
+        <li><a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" target="_blank"
+            rel="noopener noreferrer">WCAG Contrast Guidelines</a></li>
+        <li><a href="https://webaim.org/articles/contrast/" target="_blank" rel="noopener noreferrer">WebAIM: Color
+            Contrast</a></li>
+        <li><a href="https://www.a11yproject.com/posts/what-is-color-contrast/" target="_blank"
+            rel="noopener noreferrer">A11y Project: Color Contrast</a></li>
+      </ul>
+    </section>
+    <p id="learnMore">
+      <a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" target="_blank"
+        rel="noopener noreferrer">Learn more about color contrast</a>
+    </p>
+    <div id="color-palette">
+      <div class="color-square" data-color="#ff0000"></div>
+      <div class="color-square" data-color="#00ff00"></div>
+      <div class="color-square" data-color="#0000ff"></div>
+      <div class="color-square" data-color="#ffff00"></div>
     </div>
-    <div id="eyedropperContainer">
-      <button id="eyedropperButton">Select Color 1</button>
-    </div>
-    <div id="colorContainer">
-      <div id="color1" width="50" height="50"></div>
-      <div id="color2" width="50" height="50"></div>
-    </div>
-    <div id="result"></div>
   </main>
   <script src="dist/bundle.js"></script>
 </body>

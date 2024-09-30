@@ -1,25 +1,28 @@
 {
   "name": "color-contrast-picker",
-  "version": "0.1.1",
-  "description": "Color Contrast Picker is a color picker for color contrast.",
-  "main": "dist/bundle.js",
+  "version": "0.2.0",
+  "description": "A Chrome extension for picking colors and checking their contrast ratio",
+  "main": "src/index.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "build": "webpack --config webpack.config.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/robertcdawson/color-contrast-checker.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/robertcdawson/color-contrast-checker/issues"
-  },
-  "homepage": "https://github.com/robertcdawson/color-contrast-checker#readme",
+  "keywords": [
+    "chrome-extension",
+    "color-contrast",
+    "accessibility"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "devDependencies": {
-    "webpack": "^5.69.1",
-    "webpack-cli": "^4.9.2"
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "babel-jest": "^27.0.6",
+    "babel-loader": "^8.2.2",
+    "html-webpack-plugin": "^5.3.2",
+    "jest": "^27.0.6",
+    "jest-environment-jsdom": "^27.0.6",
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.8.0"
   }
 }
