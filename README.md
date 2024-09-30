@@ -1,6 +1,6 @@
 # WCAG Color Contrast Checker - A Chrome Extension
 
-![Version](https://img.shields.io/badge/version-0.2.0-blue)
+![Version](https://img.shields.io/badge/version-1.0.3-blue)
 
 ![Status: Not Functioning](https://img.shields.io/badge/Status-Not%20Functioning-red)
 

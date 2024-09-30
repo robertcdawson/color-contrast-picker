@@ -1,10 +1,10 @@
 {
-  "name": "Color Contrast Picker",
-  "description": "Check color contrast for any two elements on the page.",
-  "version": "1.0.2",
+  "name": "WCAG Color Contrast Checker",
+  "description": "A simple simple Chrome extension to check color contrast ratios for WCAG accessibility compliance.",
+  "version": "1.0.3",
   "manifest_version": 3,
   "action": {
-    "default_title": "Color Contrast Picker",
+    "default_title": "WCAG Color Contrast Checker",
     "default_icon": "img/icon128.png",
     "default_popup": "index.html"
   },
