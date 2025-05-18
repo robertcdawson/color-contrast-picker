@@ -4,6 +4,16 @@ import { getContrast, colorContrastRating, getWCAGCompliance, suggestImprovement
 // Array to store chosen colors
 export let chosenColors = ['#FFFFFF', '#000000'];
 
+export function showStatus(message, isError = false) {
+  const statusEl = document.getElementById('statusMessage');
+  if (!statusEl) return;
+  statusEl.textContent = message;
+  statusEl.style.color = isError ? 'red' : 'inherit';
+  setTimeout(() => {
+    statusEl.textContent = '';
+  }, 2000);
+}
+
 // Function to get DOM elements
 const getDOMElements = () => ({
   resultElement: document.getElementById('result'),
@@ -53,8 +63,8 @@ export function initializeUI() {
   }
 
   // Set up event listeners
-  if (elements.color1Container) elements.color1Container.addEventListener('click', () => handleColorSquareClick(1));
-  if (elements.color2Container) elements.color2Container.addEventListener('click', () => handleColorSquareClick(2));
+  if (elements.color1Container) elements.color1Container.addEventListener('click', (e) => handleColorSquareClick(e, 1));
+  if (elements.color2Container) elements.color2Container.addEventListener('click', (e) => handleColorSquareClick(e, 2));
   if (elements.instructionsToggle) elements.instructionsToggle.addEventListener('click', handleInstructionsToggle);
   if (elements.howItWorksLink) elements.howItWorksLink.addEventListener('click', handleDocumentationLinkClick);
 
@@ -91,7 +101,29 @@ export function initializeUI() {
   const colorInputs = document.querySelectorAll('.color-input');
   colorInputs.forEach((input, index) => {
     input.value = chosenColors[index];
+    input.addEventListener('change', (e) => {
+      const color = e.target.value.trim();
+      if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+        chosenColors[index] = color;
+        updateColorSquare(index, color);
+        updateContrastResult();
+      } else {
+        showStatus('Please enter a valid hex color (e.g., #FF0000)', true);
+      }
+    });
   });
+
+  document.querySelectorAll('input[name="complianceLevel"]').forEach((radio) => {
+    radio.addEventListener('change', updateContrastResult);
+  });
+
+  const largeTextCheckbox = document.getElementById('largeText');
+  if (largeTextCheckbox) {
+    largeTextCheckbox.addEventListener('change', updateContrastResult);
+  }
+
+  loadColorPairs();
+  updateRecentPairs();
 
   // Delay the initial contrast result update to ensure all elements are loaded
   setTimeout(() => {
@@ -174,6 +206,8 @@ export function updateContrastResult() {
   const { resultBar } = getDOMElements();
   resultBar.style.width = `${Math.min(ratio / 21 * 100, 100)}%`;
   resultBar.style.backgroundColor = rating === 'Fail' ? '#ff4e42' : '#0cce6b';
+
+  saveColorPairs();
 }
 
 // Toggle the visibility of the instructions
@@ -200,7 +234,21 @@ export function openDocumentationLink() {
 export function saveColorPairs() {
   if (chosenColors.length === 2) {
     localStorage.setItem('colorPairs', JSON.stringify(chosenColors));
+    updateRecentPairs();
   }
+}
+
+export function updateRecentPairs() {
+  const container = document.getElementById('recentPairs');
+  if (!container) return;
+  const colors = JSON.parse(localStorage.getItem('colorPairs'));
+  if (!colors || !Array.isArray(colors)) return;
+  container.innerHTML = '';
+  const pair = document.createElement('div');
+  pair.className = 'recent-pair';
+  pair.innerHTML = `<span style="background:${colors[0]}" class="pair-color"></span>`+
+                   `<span style="background:${colors[1]}" class="pair-color"></span>`;
+  container.appendChild(pair);
 }
 
 function setPopupHeight() {
@@ -212,65 +260,3 @@ function setPopupHeight() {
     chrome.runtime.sendMessage({ action: "setPopupHeight", height: height });
   }
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-  initializeUI();
-
-  // Add null checks for event listeners
-  const color1Container = document.getElementById("color1Container");
-  const color2Container = document.getElementById("color2Container");
-  const instructionsToggle = document.getElementById("instructionsHideShow");
-  const howItWorksLink = document.getElementById("howItWorksLink1");
-  const textContrastModeToggle = document.getElementById("textContrastMode");
-
-  if (color1Container) color1Container.addEventListener("click", () => handleColorSquareClick(1));
-  if (color2Container) color2Container.addEventListener("click", () => handleColorSquareClick(2));
-  if (instructionsToggle) instructionsToggle.addEventListener("click", handleInstructionsToggle);
-  if (howItWorksLink) howItWorksLink.addEventListener("click", handleDocumentationLinkClick);
-  if (textContrastModeToggle) {
-    textContrastModeToggle.addEventListener("change", function (event) {
-      const colorInstructions = document.getElementById("colorInstructions");
-      if (colorInstructions) {
-        colorInstructions.textContent = event.target.checked ? "Select the text color first" : "";
-      }
-    });
-  }
-
-  // Add event listeners for color squares
-  document.querySelectorAll('.color-square').forEach((square, index) => {
-    square.addEventListener('click', () => handleColorSquareClick(index + 1));
-  });
-
-  // Add event listeners for color inputs
-  document.querySelectorAll('.color-input').forEach((input, index) => {
-    input.addEventListener('change', (event) => {
-      const color = event.target.value.trim();
-      if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
-        chosenColors[index] = color;
-        updateColorSquare(index, color);
-        updateContrastResult();
-      } else {
-        alert("Please enter a valid hex color value (e.g., #FF0000)");
-      }
-    });
-  });
-
-  // Add event listeners for compliance level radio buttons
-  document.querySelectorAll('input[name="complianceLevel"]').forEach((radio) => {
-    radio.addEventListener('change', updateContrastResult);
-  });
-
-  // Add event listener for large text checkbox
-  const largeTextCheckbox = document.getElementById('largeText');
-  if (largeTextCheckbox) {
-    largeTextCheckbox.addEventListener('change', updateContrastResult);
-  }
-
-  // Load saved color pairs
-  loadColorPairs();
-
-  // Initial contrast result update with a longer delay
-  setTimeout(() => {
-    updateContrastResult();
-  }, 100);
-});

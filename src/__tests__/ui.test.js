@@ -17,10 +17,23 @@ jest.mock('../eventHandlers', () => ({
   handleDocumentationLinkClick: jest.fn(),
 }));
 
-// Remove all tests for now
-describe('UI', () => {
-  test('placeholder test', () => {
-    expect(true).toBe(true);
+describe('initializeUI', () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <div id="color1Container"><div id="color1" class="color-square"></div><input id="color1Input" class="color-input" /></div>
+      <div id="color2Container"><div id="color2" class="color-square"></div><input id="color2Input" class="color-input" /></div>
+      <div id="result"></div>
+    `;
+    jest.clearAllMocks();
+  });
+
+  it('attaches click handlers with event object', () => {
+    const { initializeUI } = require('../ui');
+    initializeUI();
+    const square = document.querySelector('#color1Container');
+    const clickEvent = new Event('click');
+    square.dispatchEvent(clickEvent);
+    expect(require('../eventHandlers').handleColorSquareClick).toHaveBeenCalledWith(clickEvent, 1);
   });
 });
 
