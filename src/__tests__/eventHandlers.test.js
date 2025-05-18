@@ -1,10 +1,11 @@
 import { handleColorSquareClick, handleManualColorInput } from '../eventHandlers';
-import { handleColorSelection, updateContrastResult } from '../ui';
+import { handleColorSelection, updateContrastResult, showStatus } from '../ui';
 
 // Mock the modules
 jest.mock('../ui', () => ({
   handleColorSelection: jest.fn(),
   updateContrastResult: jest.fn(),
+  showStatus: jest.fn(),
   chosenColors: [],
 }));
 
@@ -108,18 +109,16 @@ describe('eventHandlers', () => {
       expect(updateContrastResult).toHaveBeenCalled();
     });
 
-    it('should show an alert for invalid input', () => {
+    it('should show a status message for invalid input', () => {
       const mockEvent = {
         target: {
           id: 'color1Input',
           value: 'invalid',
         },
       };
-      global.alert = jest.fn();
-
       handleManualColorInput(mockEvent);
 
-      expect(global.alert).toHaveBeenCalledWith('Please enter a valid hex color value (e.g., #FF0000)');
+      expect(showStatus).toHaveBeenCalledWith('Please enter a valid hex color value (e.g., #FF0000)', true);
     });
   });
 });

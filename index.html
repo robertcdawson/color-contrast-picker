@@ -16,6 +16,7 @@
       <h1>WCAG Color Contrast Checker</h1>
     </header>
     <p id="instructions">Pick colors to detect contrast.</p>
+    <div id="statusMessage" aria-live="polite"></div>
     <section id="colorPicker">
       <div id="colorContainer">
         <div class="color-box" id="color1Container">
@@ -31,6 +32,7 @@
           <span class="color-label">Color 2</span>
         </div>
       </div>
+      <div id="recentPairs"></div>
     </section>
     <section id="complianceOptions">
       <h2>Compliance Level <span class="help-icon" title="Choose the WCAG compliance level to check against">?</span>
@@ -60,8 +62,8 @@
       <h2>Result</h2>
       <p id="resultText"></p>
     </section>
-    <section id="resources">
-      <h2>Learn More</h2>
+    <details id="resources" open>
+      <summary>Learn More</summary>
       <ul>
         <li><a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" target="_blank"
             rel="noopener noreferrer">WCAG Contrast Guidelines</a></li>
@@ -70,7 +72,7 @@
         <li><a href="https://www.a11yproject.com/posts/what-is-color-contrast/" target="_blank"
             rel="noopener noreferrer">A11y Project: Color Contrast</a></li>
       </ul>
-    </section>
+    </details>
     <p id="learnMore">
       <a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" target="_blank"
         rel="noopener noreferrer">Learn more about color contrast</a>

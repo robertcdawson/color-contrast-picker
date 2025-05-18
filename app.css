@@ -11,7 +11,8 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: var(--main-bg-color);
   color: var(--main-text-color);
-  width: 500px;
+  width: 100%;
+  max-width: 500px;
   box-sizing: border-box;
   line-height: 1.6;
   margin: 0;
@@ -75,6 +76,24 @@ h2 {
 
 .color-square:hover {
   transform: scale(1.05);
+}
+
+.recent-pair {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+#recentPairs {
+  display: flex;
+  flex-direction: column;
+}
+
+.pair-color {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  border: 1px solid #000;
 }
 
 .color-square:focus {
@@ -148,6 +167,11 @@ a:hover {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1;
   white-space: nowrap;
+}
+
+#statusMessage {
+  margin-top: 10px;
+  min-height: 20px;
 }
 
 /* Add styles for high contrast mode */

@@ -39,6 +39,8 @@ This Chrome extension allows users to select two colors using an eyedropper tool
 - Manual hex color input
 - Real-time contrast ratio calculation
 - WCAG compliance indicator
+- Stores the last selected color pair for quick reuse
+- Status messages provide feedback for eyedropper actions
 
 ## Development
 

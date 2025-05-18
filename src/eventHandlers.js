@@ -1,4 +1,4 @@
-import { handleColorSelection, toggleInstructions, openDocumentationLink, updateContrastResult } from './ui';
+import { handleColorSelection, toggleInstructions, openDocumentationLink, updateContrastResult, showStatus } from './ui';
 import { chosenColors } from './ui';
 
 // Handle the click event for the color squares
@@ -11,12 +11,15 @@ export async function handleColorSquareClick(event, index) {
       const result = await eyeDropper.open();
       handleColorSelection(result.sRGBHex, index - 1);
       updateContrastResult();
+      showStatus('Color selected');
     } catch (err) {
       console.error(`Error using EyeDropper: ${err.message}. Using fallback.`);
+      showStatus('EyeDropper failed, using fallback', true);
       fallbackColorPicker(index);
     }
   } else {
     console.warn("Your browser does not support the EyeDropper API. Using fallback.");
+    showStatus('EyeDropper not supported, using fallback');
     fallbackColorPicker(index);
   }
 }
@@ -52,7 +55,7 @@ export function handleManualColorInput(event) {
     updateColorSquare(colorIndex, hexValue);
     updateContrastResult();
   } else {
-    alert('Please enter a valid hex color value (e.g., #FF0000)');
+    showStatus('Please enter a valid hex color value (e.g., #FF0000)', true);
   }
 }
 
@@ -70,6 +73,7 @@ function fallbackColorPicker(index) {
     const color = event.target.value;
     handleColorSelection(color, index - 1);
     updateContrastResult();
+    showStatus('Color selected');
   });
   input.click();
 }
