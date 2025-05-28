@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Scanner Test - Color Contrast Violations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ffffff;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333333;
+            background-color: #ffffff;
+        }
+        
+        /* Good contrast examples */
+        .good-contrast {
+            color: #000000;
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .good-contrast-dark {
+            color: #ffffff;
+            background-color: #000000;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        /* Poor contrast violations */
+        .violation-1 {
+            color: #cccccc; /* Light gray on white - fails AA */
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .violation-2 {
+            color: #ffff00; /* Yellow on white - fails AA */
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .violation-3 {
+            color: #ff6666; /* Light red on white - fails AA */
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .violation-4 {
+            color: #888888; /* Medium gray on white - borderline */
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .violation-5 {
+            color: #0066cc; /* Blue on light blue - fails AA */
+            background-color: #e6f3ff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        /* AAA warnings (passes AA but fails AAA) */
+        .warning-1 {
+            color: #666666; /* Passes AA but fails AAA */
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .warning-2 {
+            color: #0080ff; /* Passes AA but fails AAA */
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        /* Large text examples */
+        .large-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .large-violation {
+            color: #999999; /* Would fail for normal text but might pass for large */
+            background-color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        /* Complex nested elements */
+        .nested-container {
+            background-color: #f0f0f0;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .nested-violation {
+            color: #d0d0d0; /* Very poor contrast */
+            background-color: inherit;
+            padding: 10px;
+        }
+        
+        /* Links and interactive elements */
+        .link-violation {
+            color: #ffcccc; /* Poor contrast link */
+            text-decoration: underline;
+        }
+        
+        .button-violation {
+            background-color: #ffff99;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Page Scanner Test Page</h1>
+        <p>This page contains various text elements with different contrast ratios to test the page scanning functionality.</p>
+        
+        <h2>Good Contrast Examples (Should Pass)</h2>
+        <div class="good-contrast">
+            This text has excellent contrast (black on white) and should pass all WCAG standards.
+        </div>
+        <div class="good-contrast-dark">
+            This text has excellent contrast (white on black) and should pass all WCAG standards.
+        </div>
+        
+        <h2>Contrast Violations (Should Fail AA)</h2>
+        <div class="violation-1">
+            This light gray text on white background fails WCAG AA standards.
+        </div>
+        <div class="violation-2">
+            This yellow text on white background fails WCAG AA standards.
+        </div>
+        <div class="violation-3">
+            This light red text on white background fails WCAG AA standards.
+        </div>
+        <div class="violation-4">
+            This medium gray text might be borderline for WCAG AA compliance.
+        </div>
+        <div class="violation-5">
+            This blue text on light blue background fails WCAG AA standards.
+        </div>
+        
+        <h2>AAA Warnings (Pass AA, Fail AAA)</h2>
+        <div class="warning-1">
+            This text passes WCAG AA but fails AAA standards.
+        </div>
+        <div class="warning-2">
+            This blue text passes WCAG AA but fails AAA standards.
+        </div>
+        
+        <h2>Large Text Examples</h2>
+        <div class="large-violation">
+            This large text might pass AA standards due to its size.
+        </div>
+        <div class="good-contrast large-text">
+            This large text has excellent contrast.
+        </div>
+        
+        <h2>Complex Nested Elements</h2>
+        <div class="nested-container">
+            <p>This container has a light gray background.</p>
+            <div class="nested-violation">
+                This nested text inherits the background and has very poor contrast.
+            </div>
+            <p>Regular text in the container should be fine.</p>
+        </div>
+        
+        <h2>Interactive Elements</h2>
+        <p>Here's a <a href="#" class="link-violation">link with poor contrast</a> that should be flagged.</p>
+        <button class="button-violation">Button with Poor Contrast</button>
+        
+        <h2>Mixed Content</h2>
+        <p>This paragraph contains <span style="color: #dddddd;">some light gray text</span> mixed with normal text.</p>
+        <p>Another paragraph with <strong style="color: #ffff80; background-color: #ffffff;">yellow bold text</strong> that violates contrast.</p>
+        
+        <h2>Instructions</h2>
+        <div class="good-contrast">
+            <ol>
+                <li>Open the Color Contrast Picker extension</li>
+                <li>Navigate to the Page Scanner section</li>
+                <li>Click "Scan Page" to analyze all text elements</li>
+                <li>Review the violations, warnings, and passed elements</li>
+                <li>Click "Show Overlays" to highlight violations on the page</li>
+                <li>Use the highlight and fix buttons to inspect specific elements</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extension Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f0f0f0;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .red-section {
+            background-color: #ff0000;
+            color: #ffffff;
+        }
+        
+        .blue-section {
+            background-color: #0066cc;
+            color: #ffffff;
+        }
+        
+        .green-section {
+            background-color: #00aa00;
+            color: #ffffff;
+        }
+        
+        .yellow-section {
+            background-color: #ffff00;
+            color: #000000;
+        }
+        
+        .purple-section {
+            background-color: #800080;
+            color: #ffffff;
+        }
+        
+        .gradient-section {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: #ffffff;
+        }
+        
+        h1 {
+            color: #333333;
+            text-align: center;
+        }
+        
+        h2 {
+            margin-top: 0;
+        }
+        
+        .instructions {
+            background-color: #e8f4fd;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Color Contrast Picker Test Page</h1>
+    
+    <div class="instructions">
+        <h3>How to Test:</h3>
+        <ol>
+            <li>Open the Color Contrast Picker extension</li>
+            <li>Click on the foreground or background color squares</li>
+            <li>Use the eyedropper to pick colors from the sections below</li>
+            <li>Or manually type hex codes like #FF0000 in the input fields</li>
+            <li>Check that the contrast analysis updates correctly</li>
+        </ol>
+    </div>
+    
+    <div class="test-section red-section">
+        <h2>Red Section (#FF0000 background, #FFFFFF text)</h2>
+        <p>This section has a red background with white text. Try picking these colors with the eyedropper tool!</p>
+    </div>
+    
+    <div class="test-section blue-section">
+        <h2>Blue Section (#0066CC background, #FFFFFF text)</h2>
+        <p>This section has a blue background with white text. Good contrast ratio for accessibility.</p>
+    </div>
+    
+    <div class="test-section green-section">
+        <h2>Green Section (#00AA00 background, #FFFFFF text)</h2>
+        <p>This section has a green background with white text. Test the color picker here!</p>
+    </div>
+    
+    <div class="test-section yellow-section">
+        <h2>Yellow Section (#FFFF00 background, #000000 text)</h2>
+        <p>This section has a yellow background with black text. This might have contrast issues!</p>
+    </div>
+    
+    <div class="test-section purple-section">
+        <h2>Purple Section (#800080 background, #FFFFFF text)</h2>
+        <p>This section has a purple background with white text. Try the eyedropper tool!</p>
+    </div>
+    
+    <div class="test-section gradient-section">
+        <h2>Gradient Section</h2>
+        <p>This section has a gradient background. The eyedropper should pick the exact color you click on.</p>
+    </div>
+    
+    <div style="background-color: #ffffff; color: #000000; padding: 20px; margin: 20px 0; border-radius: 8px;">
+        <h2>White Section (#FFFFFF background, #000000 text)</h2>
+        <p>This is a standard white background with black text - should have excellent contrast!</p>
+    </div>
+    
+    <div style="background-color: #333333; color: #cccccc; padding: 20px; margin: 20px 0; border-radius: 8px;">
+        <h2>Dark Section (#333333 background, #CCCCCC text)</h2>
+        <p>This is a dark background with light gray text. Test the accessibility compliance!</p>
+    </div>
+</body>
+</html> 

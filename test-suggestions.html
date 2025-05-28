@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Color Suggestions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .color-sample {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .failing-combo-1 {
+            color: #FFFF00;
+            background-color: #FFFFFF;
+        }
+        .failing-combo-2 {
+            color: #FF0000;
+            background-color: #FF8888;
+        }
+        .failing-combo-3 {
+            color: #888888;
+            background-color: #999999;
+        }
+        .passing-combo {
+            color: #000000;
+            background-color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+    <h1>Color Suggestion Test Page</h1>
+    <p>Use this page to test the Chrome extension's color suggestion functionality.</p>
+    
+    <div class="test-section">
+        <h2>Failing Color Combinations</h2>
+        <p>These combinations should trigger suggestions when picked with the extension:</p>
+        
+        <div class="color-sample failing-combo-1">
+            Yellow text on white background (#FFFF00 on #FFFFFF)
+            <br>Should suggest darker text or darker background
+        </div>
+        
+        <div class="color-sample failing-combo-2">
+            Red text on light red background (#FF0000 on #FF8888)
+            <br>Should suggest darker background or different text color
+        </div>
+        
+        <div class="color-sample failing-combo-3">
+            Gray text on similar gray background (#888888 on #999999)
+            <br>Should suggest more contrasting colors
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Passing Color Combination</h2>
+        <div class="color-sample passing-combo">
+            Black text on white background (#000000 on #FFFFFF)
+            <br>Should show "Colors meet WCAG standards"
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Testing Instructions</h2>
+        <ol>
+            <li>Open the Chrome extension</li>
+            <li>Pick colors from the failing combinations above</li>
+            <li>Verify that the Suggestions section auto-expands</li>
+            <li>Check that both "Suggested Text Color" and "Suggested Background" appear</li>
+            <li>Click "Apply" on any suggestion to test functionality</li>
+            <li>Try the passing combination to verify it shows "Colors meet WCAG standards"</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>Additional Test Colors</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <div style="background: #FF0000; color: #FFFFFF; padding: 10px;">White on Red</div>
+            <div style="background: #00FF00; color: #000000; padding: 10px;">Black on Green</div>
+            <div style="background: #0000FF; color: #FFFFFF; padding: 10px;">White on Blue</div>
+            <div style="background: #FFFF00; color: #000000; padding: 10px;">Black on Yellow</div>
+            <div style="background: #FF00FF; color: #FFFFFF; padding: 10px;">White on Magenta</div>
+            <div style="background: #00FFFF; color: #000000; padding: 10px;">Black on Cyan</div>
+        </div>
+    </div>
+</body>
+</html> 
