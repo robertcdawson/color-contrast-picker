@@ -1,8 +1,6 @@
 # WCAG Color Contrast Checker - A Chrome Extension
 
-![Version](https://img.shields.io/badge/version-1.0.3-blue)
-
-![Status: Not Functioning](https://img.shields.io/badge/Status-Not%20Functioning-red)
+![Version](https://img.shields.io/badge/version-1.0.4-blue)
 
 <p align="center">
   <img src="/img/screenshots/screenshot-092904.png" alt="WCAG Color Contrast Checker Interface" width="500">
