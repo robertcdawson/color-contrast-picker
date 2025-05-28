@@ -2,10 +2,6 @@
 
 ![Version](https://img.shields.io/badge/version-1.0.4-blue)
 
-<p align="center">
-  <img src="/img/screenshots/screenshot-092904.png" alt="WCAG Color Contrast Checker Interface" width="500">
-</p>
-
 ## Project Status
 
 :warning: **Warning:** The project builds successfully, but core functionality is currently not working as expected. We are actively investigating. And by "we" I mean myself and our future overlords. And by "actively" I mean when time allows, which isn't often lately.
