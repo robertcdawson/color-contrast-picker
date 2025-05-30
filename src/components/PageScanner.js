@@ -180,28 +180,78 @@ export class PageScanner {
       return element.tagName.toLowerCase();
     };
 
-    const results = [];
-    const textElements = document.querySelectorAll('*');
-    const processedElements = new Set();
+    // Helper function to check if element has meaningful text content
+    const hasTextContent = (element) => {
+      const text = element.textContent.trim();
+      return text.length > 0 && text !== '' && !/^\s*$/.test(text);
+    };
 
-    textElements.forEach((element, index) => {
-      // Skip if already processed or if element has no text content
-      if (processedElements.has(element) || !element.textContent.trim()) {
+    // Helper function to check if element is a leaf text element
+    const isLeafTextElement = (element) => {
+      // Check if this element has text content
+      if (!hasTextContent(element)) return false;
+      
+      // Check if any child elements also have text content
+      const childrenWithText = Array.from(element.children).filter(child => hasTextContent(child));
+      
+      // If no children have text, this is a leaf text element
+      // OR if this element has significantly more text than its children combined
+      if (childrenWithText.length === 0) return true;
+      
+      const elementText = element.textContent.trim().length;
+      const childrenText = childrenWithText.reduce((sum, child) => sum + child.textContent.trim().length, 0);
+      
+      // If this element has more than 50% more text than its children, consider it a text element
+      return elementText > childrenText * 1.5;
+    };
+
+    console.log('Page Scanner: Starting element analysis...');
+    
+    const results = [];
+    const allElements = document.querySelectorAll('*');
+    const processedElements = new Set();
+    
+    console.log(`Page Scanner: Found ${allElements.length} total elements`);
+
+    // Focus on common text-containing elements first
+    const textSelectors = [
+      'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'div', 'a', 'li', 'td', 'th', 
+      'label', 'button', 'strong', 'em', 'b', 'i', 'small', 'mark', 'del', 'ins', 'sub', 'sup'
+    ];
+    
+    let candidateElements = [];
+    
+    // First pass: get elements by common text selectors
+    textSelectors.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      candidateElements.push(...elements);
+    });
+    
+    // Second pass: add any other elements with text content
+    allElements.forEach(element => {
+      if (hasTextContent(element) && !candidateElements.includes(element)) {
+        candidateElements.push(element);
+      }
+    });
+    
+    console.log(`Page Scanner: Found ${candidateElements.length} candidate text elements`);
+
+    candidateElements.forEach((element, index) => {
+      // Skip if already processed
+      if (processedElements.has(element)) {
         return;
       }
 
       // Skip script, style, and other non-visual elements
       const tagName = element.tagName.toLowerCase();
-      if (['script', 'style', 'meta', 'link', 'title', 'head'].includes(tagName)) {
+      if (['script', 'style', 'meta', 'link', 'title', 'head', 'noscript'].includes(tagName)) {
         return;
       }
 
-      // Check if element has visible text (not just whitespace)
-      const hasVisibleText = element.childNodes.some(node => 
-        node.nodeType === Node.TEXT_NODE && node.textContent.trim()
-      );
-
-      if (!hasVisibleText) return;
+      // Check if this is a meaningful text element
+      if (!isLeafTextElement(element)) {
+        return;
+      }
 
       try {
         const computedStyle = window.getComputedStyle(element);
@@ -216,16 +266,27 @@ export class PageScanner {
         const textColor = computedStyle.color;
         const backgroundColor = getEffectiveBackgroundColor(element);
         
-        if (!textColor || !backgroundColor) return;
+        if (!textColor || !backgroundColor) {
+          console.log('Page Scanner: Skipping element - no color info', element);
+          return;
+        }
 
         // Convert colors to hex
         const textHex = rgbToHex(textColor);
         const bgHex = rgbToHex(backgroundColor);
         
-        if (!textHex || !bgHex) return;
+        if (!textHex || !bgHex) {
+          console.log('Page Scanner: Skipping element - color conversion failed', textColor, backgroundColor);
+          return;
+        }
 
         // Calculate contrast ratio
         const contrastRatio = calculateContrastRatio(textHex, bgHex);
+        
+        if (isNaN(contrastRatio) || contrastRatio <= 0) {
+          console.log('Page Scanner: Skipping element - invalid contrast ratio', contrastRatio);
+          return;
+        }
         
         // Determine text size category
         const fontSize = parseFloat(computedStyle.fontSize);
@@ -270,10 +331,11 @@ export class PageScanner {
         results.push(result);
         processedElements.add(element);
       } catch (error) {
-        console.warn('Error analyzing element:', error);
+        console.warn('Page Scanner: Error analyzing element:', error, element);
       }
     });
 
+    console.log(`Page Scanner: Analysis complete. Found ${results.length} text elements to analyze`);
     return results;
   }
 
