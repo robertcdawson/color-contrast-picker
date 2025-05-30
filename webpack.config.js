@@ -22,7 +22,12 @@ module.exports = {
     }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'app.css', to: 'app.css' }
+        { from: 'app.css', to: 'app.css' },
+        { from: 'manifest.json', to: 'manifest.json' },
+        { from: 'background.js', to: 'background.js' },
+        { from: 'img/icon16.png', to: 'img/icon16.png' },
+        { from: 'img/icon48.png', to: 'img/icon48.png' },
+        { from: 'img/icon128.png', to: 'img/icon128.png' }
       ]
     })
   ],
