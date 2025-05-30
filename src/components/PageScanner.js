@@ -47,6 +47,8 @@ export class PageScanner {
 
       // Check if the current page allows script injection
       const url = tab.url;
+      
+      // Only block browser internal pages, but allow file:// URLs for local development
       if (url.startsWith('chrome://') || 
           url.startsWith('chrome-extension://') || 
           url.startsWith('edge://') || 
@@ -55,12 +57,12 @@ export class PageScanner {
         throw new Error('Cannot scan this page. Page scanning is not allowed on browser internal pages.');
       }
 
-      // Special handling for new tab pages and other restricted pages
+      // Special handling for new tab pages and empty URLs
       if (url === 'chrome://newtab/' || 
           url === 'edge://newtab/' || 
           url === 'about:blank' ||
           !url || url === '') {
-        throw new Error('Cannot scan this page. Please navigate to a regular website first.');
+        throw new Error('Cannot scan this page. Please navigate to a website or local HTML file first.');
       }
 
       // Inject and execute the page scanning script
@@ -69,11 +71,19 @@ export class PageScanner {
         func: this.scanPageElements,
       });
 
-      if (results && results[0] && results[0].result) {
-        this.scanResults = results[0].result;
-        this.displayScanResults();
+      if (results && results[0]) {
+        if (results[0].result && Array.isArray(results[0].result)) {
+          this.scanResults = results[0].result;
+          this.displayScanResults();
+        } else if (results[0].result === null || results[0].result === undefined) {
+          // Script executed but returned no results
+          this.scanResults = [];
+          this.displayScanResults();
+        } else {
+          throw new Error('Script execution returned unexpected result format');
+        }
       } else {
-        throw new Error('Failed to scan page elements');
+        throw new Error('Script injection failed - no results returned');
       }
     } catch (error) {
       console.error('Error scanning page:', error);
@@ -82,13 +92,19 @@ export class PageScanner {
       let errorMessage = 'Failed to scan page. Please try again.';
       
       if (error.message.includes('Cannot access')) {
-        errorMessage = 'Cannot access this page. Try scanning a regular website instead.';
+        errorMessage = 'Cannot access this page. The page may have security restrictions.';
       } else if (error.message.includes('not allowed')) {
         errorMessage = error.message;
-      } else if (error.message.includes('navigate to a regular website')) {
+      } else if (error.message.includes('navigate to a website')) {
         errorMessage = error.message;
       } else if (error.message.includes('Extension context invalidated')) {
         errorMessage = 'Extension needs to be reloaded. Please refresh the page and try again.';
+      } else if (error.message.includes('Script injection failed')) {
+        errorMessage = 'Cannot inject script into this page. The page may have Content Security Policy restrictions.';
+      } else if (error.message.includes('Cannot access a chrome')) {
+        errorMessage = 'Cannot scan Chrome internal pages. Please navigate to a regular website.';
+      } else if (error.message.includes('activeTab')) {
+        errorMessage = 'Permission denied. Please make sure the extension has access to this page.';
       }
       
       this.showError(errorMessage);
@@ -265,6 +281,25 @@ export class PageScanner {
     const container = document.getElementById('scanResultsContainer');
     if (!container) return;
 
+    // Handle case where no results were found
+    if (!this.scanResults || this.scanResults.length === 0) {
+      container.innerHTML = `
+        <div class="scan-summary">
+          <div class="summary-stats">
+            <div class="stat-item stat-info">
+              <span class="stat-number">0</span>
+              <span class="stat-label">Elements Found</span>
+            </div>
+          </div>
+        </div>
+        <div class="no-results">
+          <i class="fas fa-info-circle"></i>
+          <span>No text elements found to analyze on this page</span>
+        </div>
+      `;
+      return;
+    }
+
     const violations = this.scanResults.filter(result => !result.contrast.passesAA);
     const warnings = this.scanResults.filter(result => result.contrast.passesAA && !result.contrast.passesAAA);
     const passed = this.scanResults.filter(result => result.contrast.passesAAA);
@@ -314,6 +349,18 @@ export class PageScanner {
           <div class="results-list">
             ${warnings.map(result => this.createResultItem(result, 'warning')).join('')}
           </div>
+        </div>
+      `;
+    }
+
+    // Show success message if all elements pass
+    if (violations.length === 0 && warnings.length === 0 && passed.length > 0) {
+      resultsHTML += `
+        <div class="results-section">
+          <h4 class="results-title success">
+            <i class="fas fa-check-circle"></i>
+            All Elements Pass WCAG AAA (${passed.length})
+          </h4>
         </div>
       `;
     }
