@@ -91,8 +91,8 @@ export function suggestBetterColor(foregroundColor, backgroundColor, complianceL
     ? (textSize === 'normal' ? 4.5 : 3)
     : (textSize === 'normal' ? 7 : 4.5);
 
-  // Add safety margin to ensure we exceed the requirement
-  const targetRatio = requiredRatio + 0.1;
+  // Add significant safety margin to ensure reliable compliance
+  const targetRatio = requiredRatio * 1.15; // 15% above minimum
 
   if (currentRatio >= requiredRatio) {
     return null; // Already compliant
@@ -104,63 +104,67 @@ export function suggestBetterColor(foregroundColor, backgroundColor, complianceL
   const fgLuminance = getRelativeLuminance(fgRgb.r, fgRgb.g, fgRgb.b);
   const bgLuminance = getRelativeLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
 
-  // Determine if we need to make foreground lighter or darker
-  const needsLighter = fgLuminance < bgLuminance;
+  let bestColor = null;
+  let bestRatio = 0;
+
+  // Strategy 1: Try pure black and white first (most reliable)
+  const blackRatio = calculateContrastRatio('#000000', backgroundColor);
+  const whiteRatio = calculateContrastRatio('#FFFFFF', backgroundColor);
   
-  // Try multiple approaches to find the best color
-  let bestColor = foregroundColor;
-  let bestRatio = currentRatio;
+  if (blackRatio >= targetRatio && blackRatio > bestRatio) {
+    bestColor = '#000000';
+    bestRatio = blackRatio;
+  }
+  
+  if (whiteRatio >= targetRatio && whiteRatio > bestRatio) {
+    bestColor = '#FFFFFF';
+    bestRatio = whiteRatio;
+  }
 
-  // Approach 1: Binary search with fine-grained control
-  for (let intensity = 0.1; intensity <= 1.0; intensity += 0.05) {
-    let testR, testG, testB;
+  // Strategy 2: Try high-contrast grays
+  const grayLevels = [0, 17, 34, 51, 68, 85, 102, 119, 136, 153, 170, 187, 204, 221, 238, 255];
+  for (const level of grayLevels) {
+    const grayColor = `#${level.toString(16).padStart(2, '0').repeat(3)}`;
+    const ratio = calculateContrastRatio(grayColor, backgroundColor);
     
-    if (needsLighter) {
-      // Make lighter by interpolating towards white
-      testR = Math.round(fgRgb.r + (255 - fgRgb.r) * intensity);
-      testG = Math.round(fgRgb.g + (255 - fgRgb.g) * intensity);
-      testB = Math.round(fgRgb.b + (255 - fgRgb.b) * intensity);
-    } else {
-      // Make darker by interpolating towards black
-      testR = Math.round(fgRgb.r * (1 - intensity));
-      testG = Math.round(fgRgb.g * (1 - intensity));
-      testB = Math.round(fgRgb.b * (1 - intensity));
-    }
-
-    // Ensure values are within valid range
-    testR = Math.max(0, Math.min(255, testR));
-    testG = Math.max(0, Math.min(255, testG));
-    testB = Math.max(0, Math.min(255, testB));
-
-    const testColor = '#' + [testR, testG, testB]
-      .map(x => x.toString(16).padStart(2, '0'))
-      .join('').toUpperCase();
-
-    const testRatio = calculateContrastRatio(testColor, backgroundColor);
-
-    if (testRatio >= targetRatio && testRatio > bestRatio) {
-      bestColor = testColor;
-      bestRatio = testRatio;
+    if (ratio >= targetRatio && ratio > bestRatio) {
+      bestColor = grayColor;
+      bestRatio = ratio;
     }
   }
 
-  // Approach 2: Try pure black or white if interpolation didn't work
-  if (bestRatio < targetRatio) {
-    const blackRatio = calculateContrastRatio('#000000', backgroundColor);
-    const whiteRatio = calculateContrastRatio('#FFFFFF', backgroundColor);
+  // Strategy 3: Preserve hue but adjust lightness
+  if (!bestColor || bestRatio < targetRatio) {
+    const hsl = rgbToHsl(fgRgb.r, fgRgb.g, fgRgb.b);
     
-    if (blackRatio >= targetRatio && blackRatio > bestRatio) {
-      bestColor = '#000000';
-      bestRatio = blackRatio;
-    }
-    
-    if (whiteRatio >= targetRatio && whiteRatio > bestRatio) {
-      bestColor = '#FFFFFF';
-      bestRatio = whiteRatio;
+    // Try different lightness values while preserving hue and saturation
+    for (let lightness = 0; lightness <= 100; lightness += 5) {
+      const rgb = hslToRgb(hsl.h, hsl.s, lightness);
+      const testColor = `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
+      const ratio = calculateContrastRatio(testColor, backgroundColor);
+      
+      if (ratio >= targetRatio && ratio > bestRatio) {
+        bestColor = testColor;
+        bestRatio = ratio;
+      }
     }
   }
 
-  return bestRatio >= requiredRatio ? bestColor : null;
+  // Strategy 4: Mathematical approach - calculate exact luminance needed
+  if (!bestColor || bestRatio < targetRatio) {
+    const targetLuminance = calculateTargetLuminance(bgLuminance, targetRatio);
+    if (targetLuminance !== null) {
+      const targetColor = luminanceToGray(targetLuminance);
+      const ratio = calculateContrastRatio(targetColor, backgroundColor);
+      
+      if (ratio >= targetRatio) {
+        bestColor = targetColor;
+        bestRatio = ratio;
+      }
+    }
+  }
+
+  return bestColor && bestRatio >= requiredRatio ? bestColor : null;
 }
 
 /**
@@ -177,8 +181,8 @@ export function suggestBetterBackgroundColor(foregroundColor, backgroundColor, c
     ? (textSize === 'normal' ? 4.5 : 3)
     : (textSize === 'normal' ? 7 : 4.5);
 
-  // Add safety margin to ensure we exceed the requirement
-  const targetRatio = requiredRatio + 0.1;
+  // Add significant safety margin to ensure reliable compliance
+  const targetRatio = requiredRatio * 1.15; // 15% above minimum
 
   if (currentRatio >= requiredRatio) {
     return null; // Already compliant
@@ -190,81 +194,210 @@ export function suggestBetterBackgroundColor(foregroundColor, backgroundColor, c
   const fgLuminance = getRelativeLuminance(fgRgb.r, fgRgb.g, fgRgb.b);
   const bgLuminance = getRelativeLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
 
-  // For background, we want to move away from the foreground luminance
-  // If fg is dark, make bg lighter; if fg is light, make bg darker
-  const needsLighter = fgLuminance < 0.5;
+  let bestColor = null;
+  let bestRatio = 0;
+
+  // Strategy 1: Try pure black and white first (most reliable)
+  const blackBgRatio = calculateContrastRatio(foregroundColor, '#000000');
+  const whiteBgRatio = calculateContrastRatio(foregroundColor, '#FFFFFF');
   
-  let bestColor = backgroundColor;
-  let bestRatio = currentRatio;
+  if (blackBgRatio >= targetRatio && blackBgRatio > bestRatio) {
+    bestColor = '#000000';
+    bestRatio = blackBgRatio;
+  }
+  
+  if (whiteBgRatio >= targetRatio && whiteBgRatio > bestRatio) {
+    bestColor = '#FFFFFF';
+    bestRatio = whiteBgRatio;
+  }
 
-  // Approach 1: Fine-grained intensity adjustment
-  for (let intensity = 0.1; intensity <= 1.0; intensity += 0.05) {
-    let testR, testG, testB;
+  // Strategy 2: Try high-contrast grays
+  const grayLevels = [0, 17, 34, 51, 68, 85, 102, 119, 136, 153, 170, 187, 204, 221, 238, 255];
+  for (const level of grayLevels) {
+    const grayColor = `#${level.toString(16).padStart(2, '0').repeat(3)}`;
+    const ratio = calculateContrastRatio(foregroundColor, grayColor);
     
-    if (needsLighter) {
-      // Make background lighter by interpolating towards white
-      testR = Math.round(bgRgb.r + (255 - bgRgb.r) * intensity);
-      testG = Math.round(bgRgb.g + (255 - bgRgb.g) * intensity);
-      testB = Math.round(bgRgb.b + (255 - bgRgb.b) * intensity);
-    } else {
-      // Make background darker by interpolating towards black
-      testR = Math.round(bgRgb.r * (1 - intensity));
-      testG = Math.round(bgRgb.g * (1 - intensity));
-      testB = Math.round(bgRgb.b * (1 - intensity));
-    }
-
-    // Ensure values are within valid range
-    testR = Math.max(0, Math.min(255, testR));
-    testG = Math.max(0, Math.min(255, testG));
-    testB = Math.max(0, Math.min(255, testB));
-
-    const testColor = '#' + [testR, testG, testB]
-      .map(x => x.toString(16).padStart(2, '0'))
-      .join('').toUpperCase();
-
-    const testRatio = calculateContrastRatio(foregroundColor, testColor);
-
-    if (testRatio >= targetRatio && testRatio > bestRatio) {
-      bestColor = testColor;
-      bestRatio = testRatio;
+    if (ratio >= targetRatio && ratio > bestRatio) {
+      bestColor = grayColor;
+      bestRatio = ratio;
     }
   }
 
-  // Approach 2: Try pure black or white backgrounds if interpolation didn't work
-  if (bestRatio < targetRatio) {
-    const blackBgRatio = calculateContrastRatio(foregroundColor, '#000000');
-    const whiteBgRatio = calculateContrastRatio(foregroundColor, '#FFFFFF');
+  // Strategy 3: Try common accessible background colors
+  const accessibleBackgrounds = [
+    '#FFFFFF', '#F8F9FA', '#E9ECEF', '#DEE2E6', '#CED4DA', '#ADB5BD',
+    '#6C757D', '#495057', '#343A40', '#212529', '#000000',
+    // Light tints
+    '#FFF5F5', '#F0FFF4', '#F0F8FF', '#FFFAF0', '#F5F5DC',
+    // Dark backgrounds
+    '#1A1A1A', '#2D2D2D', '#404040', '#1E1E1E', '#0D1117'
+  ];
+  
+  for (const testBg of accessibleBackgrounds) {
+    if (testBg === backgroundColor) continue;
     
-    if (blackBgRatio >= targetRatio && blackBgRatio > bestRatio) {
-      bestColor = '#000000';
-      bestRatio = blackBgRatio;
-    }
-    
-    if (whiteBgRatio >= targetRatio && whiteBgRatio > bestRatio) {
-      bestColor = '#FFFFFF';
-      bestRatio = whiteBgRatio;
+    const ratio = calculateContrastRatio(foregroundColor, testBg);
+    if (ratio >= targetRatio && ratio > bestRatio) {
+      bestColor = testBg;
+      bestRatio = ratio;
     }
   }
 
-  // Approach 3: Try common high-contrast colors
-  if (bestRatio < targetRatio) {
-    const commonBgColors = [
-      '#F8F9FA', '#E9ECEF', '#DEE2E6', '#CED4DA', '#ADB5BD', '#6C757D',
-      '#495057', '#343A40', '#212529', '#000000', '#FFFFFF'
-    ];
+  // Strategy 4: Preserve hue but adjust lightness
+  if (!bestColor || bestRatio < targetRatio) {
+    const hsl = rgbToHsl(bgRgb.r, bgRgb.g, bgRgb.b);
     
-    for (const testBg of commonBgColors) {
-      if (testBg === backgroundColor) continue;
+    // Try different lightness values while preserving hue and saturation
+    for (let lightness = 0; lightness <= 100; lightness += 5) {
+      const rgb = hslToRgb(hsl.h, hsl.s, lightness);
+      const testColor = `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
+      const ratio = calculateContrastRatio(foregroundColor, testColor);
       
-      const testRatio = calculateContrastRatio(foregroundColor, testBg);
-      if (testRatio >= targetRatio && testRatio > bestRatio) {
-        bestColor = testBg;
-        bestRatio = testRatio;
+      if (ratio >= targetRatio && ratio > bestRatio) {
+        bestColor = testColor;
+        bestRatio = ratio;
       }
     }
   }
 
-  return bestRatio >= requiredRatio ? bestColor : null;
+  // Strategy 5: Mathematical approach - calculate exact luminance needed
+  if (!bestColor || bestRatio < targetRatio) {
+    const targetLuminance = calculateTargetLuminance(fgLuminance, targetRatio);
+    if (targetLuminance !== null) {
+      const targetColor = luminanceToGray(targetLuminance);
+      const ratio = calculateContrastRatio(foregroundColor, targetColor);
+      
+      if (ratio >= targetRatio) {
+        bestColor = targetColor;
+        bestRatio = ratio;
+      }
+    }
+  }
+
+  return bestColor && bestRatio >= requiredRatio ? bestColor : null;
+}
+
+/**
+ * Calculate the target luminance needed to achieve a specific contrast ratio
+ * @param {number} referenceLuminance - Luminance of the reference color
+ * @param {number} targetRatio - Desired contrast ratio
+ * @returns {number|null} Target luminance or null if impossible
+ */
+function calculateTargetLuminance(referenceLuminance, targetRatio) {
+  // For contrast ratio = (L1 + 0.05) / (L2 + 0.05) where L1 > L2
+  // We can solve for the unknown luminance
+  
+  // Try both possibilities: target being lighter or darker
+  const lighterLuminance = (referenceLuminance + 0.05) * targetRatio - 0.05;
+  const darkerLuminance = (referenceLuminance + 0.05) / targetRatio - 0.05;
+  
+  // Return the valid luminance value (between 0 and 1)
+  if (lighterLuminance >= 0 && lighterLuminance <= 1) {
+    return lighterLuminance;
+  }
+  if (darkerLuminance >= 0 && darkerLuminance <= 1) {
+    return darkerLuminance;
+  }
+  
+  return null;
+}
+
+/**
+ * Convert a luminance value to a gray color
+ * @param {number} luminance - Target luminance (0-1)
+ * @returns {string} Hex color string
+ */
+function luminanceToGray(luminance) {
+  // Inverse of the luminance calculation for gray (R=G=B)
+  // L = 0.2126 * Rs + 0.7152 * Gs + 0.0722 * Bs
+  // For gray: L = Rs (since Rs = Gs = Bs)
+  // Rs = L <= 0.03928 ? L * 12.92 : Math.pow((L + 0.055) / 1.055, 1/2.4)
+  
+  let srgb;
+  if (luminance <= 0.03928) {
+    srgb = luminance * 12.92;
+  } else {
+    srgb = Math.pow((luminance + 0.055) / 1.055, 1 / 2.4);
+  }
+  
+  const value = Math.round(srgb * 255);
+  const clampedValue = Math.max(0, Math.min(255, value));
+  const hex = clampedValue.toString(16).padStart(2, '0');
+  
+  return `#${hex}${hex}${hex}`;
+}
+
+/**
+ * Convert RGB to HSL
+ * @param {number} r - Red (0-255)
+ * @param {number} g - Green (0-255)
+ * @param {number} b - Blue (0-255)
+ * @returns {Object} HSL object with h, s, l properties
+ */
+function rgbToHsl(r, g, b) {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+
+  return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
+/**
+ * Convert HSL to RGB
+ * @param {number} h - Hue (0-360)
+ * @param {number} s - Saturation (0-100)
+ * @param {number} l - Lightness (0-100)
+ * @returns {Object} RGB object with r, g, b properties
+ */
+function hslToRgb(h, s, l) {
+  h /= 360;
+  s /= 100;
+  l /= 100;
+
+  const hue2rgb = (p, q, t) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  };
+
+  let r, g, b;
+
+  if (s === 0) {
+    r = g = b = l; // achromatic
+  } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+
+  return {
+    r: Math.round(r * 255),
+    g: Math.round(g * 255),
+    b: Math.round(b * 255)
+  };
 }
 
 /**

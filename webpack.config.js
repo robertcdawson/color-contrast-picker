@@ -23,7 +23,18 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         { from: 'app.css', to: 'app.css' },
-        { from: 'manifest.json', to: 'manifest.json' },
+        { 
+          from: 'manifest.json', 
+          to: 'manifest.json',
+          transform(content) {
+            const manifest = JSON.parse(content.toString());
+            // Update paths for dist directory
+            manifest.action.default_popup = 'index.html';
+            manifest.content_scripts[0].js = ['contentScript.js'];
+            manifest.web_accessible_resources[0].resources = ['*'];
+            return JSON.stringify(manifest, null, 2);
+          }
+        },
         { from: 'background.js', to: 'background.js' },
         { from: 'img/icon16.png', to: 'img/icon16.png' },
         { from: 'img/icon48.png', to: 'img/icon48.png' },
