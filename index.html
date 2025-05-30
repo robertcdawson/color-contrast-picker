@@ -94,6 +94,34 @@
       </div>
     </section>
 
+    <!-- Collapsible Options -->
+    <section class="options-section">
+      <button class="section-toggle" id="optionsToggle" aria-expanded="false">
+        <span>Options</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="collapsible-content" id="optionsContent">
+        <div class="option-row">
+          <span class="option-label">Standard:</span>
+          <div class="radio-group">
+            <input type="radio" id="levelAA" name="complianceLevel" value="AA" checked>
+            <label for="levelAA">AA</label>
+            <input type="radio" id="levelAAA" name="complianceLevel" value="AAA">
+            <label for="levelAAA">AAA</label>
+          </div>
+        </div>
+        <div class="option-row">
+          <span class="option-label">Text Size:</span>
+          <div class="radio-group">
+            <input type="radio" id="normalText" name="textSize" value="normal" checked>
+            <label for="normalText">Normal</label>
+            <input type="radio" id="largeText" name="textSize" value="large">
+            <label for="largeText">Large</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Page Scanner Section -->
     <section class="page-scanner-section">
       <button class="section-toggle" id="pageScannerToggle" aria-expanded="false">
@@ -121,34 +149,6 @@
           <div class="no-results">
             <i class="fas fa-search"></i>
             <span>Click "Scan Page" to analyze contrast on this page</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Collapsible Options -->
-    <section class="options-section">
-      <button class="section-toggle" id="optionsToggle" aria-expanded="false">
-        <span>Options</span>
-        <i class="fas fa-chevron-down"></i>
-      </button>
-      <div class="collapsible-content" id="optionsContent">
-        <div class="option-row">
-          <span class="option-label">Standard:</span>
-          <div class="radio-group">
-            <input type="radio" id="levelAA" name="complianceLevel" value="AA" checked>
-            <label for="levelAA">AA</label>
-            <input type="radio" id="levelAAA" name="complianceLevel" value="AAA">
-            <label for="levelAAA">AAA</label>
-          </div>
-        </div>
-        <div class="option-row">
-          <span class="option-label">Text Size:</span>
-          <div class="radio-group">
-            <input type="radio" id="normalText" name="textSize" value="normal" checked>
-            <label for="normalText">Normal</label>
-            <input type="radio" id="largeText" name="textSize" value="large">
-            <label for="largeText">Large</label>
           </div>
         </div>
       </div>

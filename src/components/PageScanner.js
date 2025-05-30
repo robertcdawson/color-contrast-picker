@@ -45,6 +45,24 @@ export class PageScanner {
         throw new Error('No active tab found');
       }
 
+      // Check if the current page allows script injection
+      const url = tab.url;
+      if (url.startsWith('chrome://') || 
+          url.startsWith('chrome-extension://') || 
+          url.startsWith('edge://') || 
+          url.startsWith('about:') ||
+          url.startsWith('moz-extension://')) {
+        throw new Error('Cannot scan this page. Page scanning is not allowed on browser internal pages.');
+      }
+
+      // Special handling for new tab pages and other restricted pages
+      if (url === 'chrome://newtab/' || 
+          url === 'edge://newtab/' || 
+          url === 'about:blank' ||
+          !url || url === '') {
+        throw new Error('Cannot scan this page. Please navigate to a regular website first.');
+      }
+
       // Inject and execute the page scanning script
       const results = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -59,7 +77,21 @@ export class PageScanner {
       }
     } catch (error) {
       console.error('Error scanning page:', error);
-      this.showError('Failed to scan page. Please try again.');
+      
+      // Provide more specific error messages based on the error type
+      let errorMessage = 'Failed to scan page. Please try again.';
+      
+      if (error.message.includes('Cannot access')) {
+        errorMessage = 'Cannot access this page. Try scanning a regular website instead.';
+      } else if (error.message.includes('not allowed')) {
+        errorMessage = error.message;
+      } else if (error.message.includes('navigate to a regular website')) {
+        errorMessage = error.message;
+      } else if (error.message.includes('Extension context invalidated')) {
+        errorMessage = 'Extension needs to be reloaded. Please refresh the page and try again.';
+      }
+      
+      this.showError(errorMessage);
     } finally {
       this.isScanning = false;
       this.updateUI();
