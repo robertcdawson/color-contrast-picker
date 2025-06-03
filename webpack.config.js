@@ -39,7 +39,10 @@ module.exports = {
         { from: 'img/icon16.png', to: 'img/icon16.png' },
         { from: 'img/icon48.png', to: 'img/icon48.png' },
         { from: 'img/icon128.png', to: 'img/icon128.png' }
-      ]
+      ],
+      options: {
+        concurrency: 100,
+      }
     })
   ],
   module: {
