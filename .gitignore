@@ -39,6 +39,8 @@ bower_components
 *.swp
 *.swo
 .DS_Store
+.claude/
+CLAUDE.md
 
 # Optional npm cache directory
 .npm
