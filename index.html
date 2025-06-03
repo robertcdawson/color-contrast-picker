@@ -21,188 +21,187 @@
       </button>
     </header>
 
-    <!-- Color Picker Section -->
-    <section class="color-picker-section">
-      <div class="color-picker-grid">
-        <!-- Foreground Color -->
-        <div class="color-input-group">
-          <label for="foregroundSquare">Text Color</label>
-          <div class="color-input-container">
-            <div class="color-square" id="foregroundSquare" 
-                 style="background-color: #000000;" 
-                 tabindex="0" 
-                 role="button" 
-                 aria-label="Pick text color"
-                 title="Click to pick text color">
-              <i class="fas fa-eye-dropper"></i>
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <!-- Left Column: Core Functionality -->
+      <div class="left-column">
+        <!-- Color Picker Section -->
+        <section class="color-picker-section">
+          <div class="color-picker-grid">
+            <!-- Foreground Color -->
+            <div class="color-input-group">
+              <label for="foregroundSquare">Text Color</label>
+              <div class="color-input-container">
+                <div class="color-square" id="foregroundSquare" 
+                     style="background-color: #000000;" 
+                     tabindex="0" 
+                     role="button" 
+                     aria-label="Pick text color"
+                     title="Click to pick text color">
+                  <i class="fas fa-eye-dropper"></i>
+                </div>
+                <input type="text" id="foregroundHex" class="hex-input" value="#000000" 
+                       placeholder="#000000" aria-label="Text color hex value">
+              </div>
             </div>
-            <input type="text" id="foregroundHex" class="hex-input" value="#000000" 
-                   placeholder="#000000" aria-label="Text color hex value">
-          </div>
-        </div>
 
-        <!-- Swap Button -->
-        <div class="swap-container">
-          <button id="swapColors" class="swap-button" aria-label="Swap colors">
-            <i class="fas fa-exchange-alt"></i>
-          </button>
-        </div>
-
-        <!-- Background Color -->
-        <div class="color-input-group">
-          <label for="backgroundSquare">Background</label>
-          <div class="color-input-container">
-            <div class="color-square" id="backgroundSquare" 
-                 style="background-color: #ffffff;" 
-                 tabindex="0" 
-                 role="button" 
-                 aria-label="Pick background color"
-                 title="Click to pick background color">
-              <i class="fas fa-eye-dropper"></i>
+            <!-- Swap Button -->
+            <div class="swap-container">
+              <button id="swapColors" class="swap-button" aria-label="Swap colors">
+                <i class="fas fa-exchange-alt"></i>
+              </button>
             </div>
-            <input type="text" id="backgroundHex" class="hex-input" value="#ffffff" 
-                   placeholder="#ffffff" aria-label="Background color hex value">
+
+            <!-- Background Color -->
+            <div class="color-input-group">
+              <label for="backgroundSquare">Background</label>
+              <div class="color-input-container">
+                <div class="color-square" id="backgroundSquare" 
+                     style="background-color: #ffffff;" 
+                     tabindex="0" 
+                     role="button" 
+                     aria-label="Pick background color"
+                     title="Click to pick background color">
+                  <i class="fas fa-eye-dropper"></i>
+                </div>
+                <input type="text" id="backgroundHex" class="hex-input" value="#ffffff" 
+                       placeholder="#ffffff" aria-label="Background color hex value">
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <!-- Contrast Result Section -->
-    <section class="contrast-result-section">
-      <div class="contrast-display">
-        <div class="contrast-ratio">
-          <span class="ratio-value">21.00</span>
-          <span class="ratio-suffix">:1</span>
-        </div>
-        <div class="compliance-status">
-          <div class="status-badge status-pass" id="complianceStatus">
-            <i class="fas fa-check"></i>
-            <span>WCAG AA</span>
+        <!-- Contrast Result Section -->
+        <section class="contrast-result-section">
+          <div class="contrast-display">
+            <div class="contrast-ratio">
+              <span class="ratio-value">21.00</span>
+              <span class="ratio-suffix">:1</span>
+            </div>
+            <div class="compliance-status">
+              <div class="status-badge status-pass" id="complianceStatus">
+                <i class="fas fa-check"></i>
+                <span>WCAG AA</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="contrast-bar-container">
-        <div class="contrast-bar" id="contrastBar"></div>
-      </div>
-    </section>
-
-    <!-- Preview Section -->
-    <section class="preview-section">
-      <div class="preview-text">
-        <div class="sample-normal" id="sampleNormal">Sample Text</div>
-        <div class="sample-large" id="sampleLarge">Large Text</div>
-      </div>
-    </section>
-
-    <!-- Collapsible Options -->
-    <section class="options-section">
-      <button class="section-toggle" id="optionsToggle" aria-expanded="false">
-        <span>Options</span>
-        <i class="fas fa-chevron-down"></i>
-      </button>
-      <div class="collapsible-content" id="optionsContent">
-        <div class="option-row">
-          <span class="option-label">Standard:</span>
-          <div class="radio-group">
-            <input type="radio" id="levelAA" name="complianceLevel" value="AA" checked>
-            <label for="levelAA">AA</label>
-            <input type="radio" id="levelAAA" name="complianceLevel" value="AAA">
-            <label for="levelAAA">AAA</label>
+          <div class="contrast-bar-container">
+            <div class="contrast-bar" id="contrastBar"></div>
           </div>
-        </div>
-        <div class="option-row">
-          <span class="option-label">Text Size:</span>
-          <div class="radio-group">
-            <input type="radio" id="normalText" name="textSize" value="normal" checked>
-            <label for="normalText">Normal</label>
-            <input type="radio" id="largeText" name="textSize" value="large">
-            <label for="largeText">Large</label>
+        </section>
+
+        <!-- Preview Section -->
+        <section class="preview-section">
+          <div class="preview-text">
+            <div class="sample-normal" id="sampleNormal">Sample Text</div>
+            <div class="sample-large" id="sampleLarge">Large Text</div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <!-- Collapsible Suggestions -->
-    <section class="suggestions-section">
-      <button class="section-toggle" id="suggestionsToggle" aria-expanded="false">
-        <span>Suggestions</span>
-        <i class="fas fa-chevron-down"></i>
-      </button>
-      <div class="collapsible-content" id="suggestionsContent">
-        <div class="suggestions-container" id="suggestionsContainer">
-          <div class="no-suggestions">Colors meet WCAG standards</div>
-        </div>
-      </div>
-    </section>
+        <!-- Options -->
+        <section class="options-section">
+          <h3 class="options-title">Options</h3>
+          <div class="options-content">
+            <div class="option-row">
+              <span class="option-label">Standard:</span>
+              <div class="radio-group">
+                <input type="radio" id="levelAA" name="complianceLevel" value="AA" checked>
+                <label for="levelAA">AA</label>
+                <input type="radio" id="levelAAA" name="complianceLevel" value="AAA">
+                <label for="levelAAA">AAA</label>
+              </div>
+            </div>
+            <div class="option-row">
+              <span class="option-label">Text Size:</span>
+              <div class="radio-group">
+                <input type="radio" id="normalText" name="textSize" value="normal" checked>
+                <label for="normalText">Normal</label>
+                <input type="radio" id="largeText" name="textSize" value="large">
+                <label for="largeText">Large</label>
+              </div>
+            </div>
+          </div>
+        </section>
 
-    <!-- Collapsible Actions -->
-    <section class="actions-section">
-      <button class="section-toggle" id="actionsToggle" aria-expanded="false">
-        <span>Actions</span>
-        <i class="fas fa-chevron-down"></i>
-      </button>
-      <div class="collapsible-content" id="actionsContent">
-        <div class="action-buttons">
-          <button id="copyColors" class="action-button">
-            <i class="fas fa-copy"></i>
-            <span>Copy Colors</span>
+        <!-- Actions -->
+        <section class="actions-section">
+          <h3 class="actions-title">Actions</h3>
+          <div class="actions-content">
+            <div class="action-buttons">
+              <button id="copyColors" class="action-button">
+                <i class="fas fa-copy"></i>
+                <span>Copy Colors</span>
+              </button>
+              <button id="shareLink" class="action-button">
+                <i class="fas fa-link"></i>
+                <span>Share Link</span>
+              </button>
+              <button id="exportDesign" class="action-button">
+                <i class="fas fa-download"></i>
+                <span>Export</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Secondary Features -->
+      <div class="right-column">
+        <!-- Collapsible Suggestions -->
+        <section class="suggestions-section">
+          <button class="section-toggle" id="suggestionsToggle" aria-expanded="false">
+            <span>Suggestions</span>
+            <i class="fas fa-chevron-down"></i>
           </button>
-          <button id="shareLink" class="action-button">
-            <i class="fas fa-link"></i>
-            <span>Share Link</span>
-          </button>
-          <button id="exportDesign" class="action-button">
-            <i class="fas fa-download"></i>
-            <span>Export</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Page Scanner Section -->
-    <section class="page-scanner-section">
-      <button class="section-toggle" id="pageScannerToggle" aria-expanded="false">
-        <span>Page Scanner</span>
-        <i class="fas fa-chevron-down"></i>
-      </button>
-      <div class="collapsible-content" id="pageScannerContent">
-        <div class="scanner-controls">
-          <div class="scanner-actions">
-            <button id="scanPageButton" class="scanner-button primary">
-              <i class="fas fa-search"></i>
-              Scan Page
-            </button>
-            <button id="toggleOverlaysButton" class="scanner-button" disabled>
-              <i class="fas fa-eye"></i>
-              Show Overlays
-            </button>
-            <button id="clearOverlaysButton" class="scanner-button danger" disabled>
-              <i class="fas fa-times"></i>
-              Clear
-            </button>
+          <div class="collapsible-content" id="suggestionsContent">
+            <div class="suggestions-container" id="suggestionsContainer">
+              <div class="no-suggestions">Colors meet WCAG standards</div>
+            </div>
           </div>
-        </div>
-        <div class="scan-results-container" id="scanResultsContainer">
-          <div class="no-results">
-            <i class="fas fa-search"></i>
-            <span>Click "Scan Page" to analyze contrast on this page</span>
-          </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <!-- Color History -->
-    <section class="history-section">
-      <button class="section-toggle" id="historyToggle" aria-expanded="false">
-        <span>Recent Colors</span>
-        <i class="fas fa-chevron-down"></i>
-      </button>
-      <div class="collapsible-content" id="historyContent">
-        <div class="color-history" id="colorHistory">
-          <div class="no-history">No recent colors</div>
-        </div>
+        <!-- Page Scanner Section -->
+        <section class="page-scanner-section">
+          <button class="section-toggle" id="pageScannerToggle" aria-expanded="false">
+            <span>Page Scanner</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="collapsible-content" id="pageScannerContent">
+            <div class="scanner-controls">
+              <div class="scanner-actions">
+                <button id="scanPageButton" class="scanner-button primary">
+                  <i class="fas fa-search"></i>
+                  Scan Page
+                </button>
+                <button id="toggleOverlaysButton" class="scanner-button" disabled>
+                  <i class="fas fa-eye"></i>
+                  Show Overlays
+                </button>
+              </div>
+            </div>
+            <div class="scan-results-container" id="scanResultsContainer">
+              <div class="no-results">
+                <i class="fas fa-search"></i>
+                <span>Click "Scan Page" to analyze contrast on this page</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Color History -->
+        <section class="history-section">
+          <button class="section-toggle" id="historyToggle" aria-expanded="false">
+            <span>Recent Colors</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="collapsible-content" id="historyContent">
+            <div class="color-history" id="colorHistory">
+              <div class="no-history">No recent colors</div>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <!-- Footer -->
     <footer class="popup-footer">

@@ -156,13 +156,18 @@ export class ContrastAnalyzer {
   generateColorSuggestions(isPassing, ratio) {
     if (!this.suggestionsContainer) return;
 
-    if (isPassing) {
-      this.suggestionsContainer.innerHTML = '<div class="no-suggestions">Colors meet WCAG standards</div>';
-      return;
-    }
-
     // Clear existing suggestions
     this.suggestionsContainer.innerHTML = '';
+
+    if (isPassing) {
+      this.suggestionsContainer.innerHTML = `
+        <div class="no-suggestions" role="status" aria-live="polite">
+          <span class="sr-only">Accessibility status: </span>
+          Colors meet WCAG standards
+        </div>
+      `;
+      return;
+    }
 
     // Get suggested colors
     const minRatio = this.complianceLevel === 'AAA' 
@@ -187,21 +192,56 @@ export class ContrastAnalyzer {
 
     let hasValidSuggestions = false;
 
+    // Create suggestions list with proper ARIA structure
+    const suggestionsList = document.createElement('ul');
+    suggestionsList.className = 'suggestions-list';
+    suggestionsList.setAttribute('role', 'list');
+    suggestionsList.setAttribute('aria-label', 'Color contrast improvement suggestions');
+
     if (suggestedFg && suggestedFg !== this.foregroundColor) {
-      this.createSuggestion('foreground', suggestedFg, this.backgroundColor, 'Suggested Text Color');
+      const suggestionItem = this.createSuggestion('foreground', suggestedFg, this.backgroundColor, 'Suggested Text Color');
+      suggestionsList.appendChild(suggestionItem);
       hasValidSuggestions = true;
     }
 
     if (suggestedBg && suggestedBg !== this.backgroundColor) {
-      this.createSuggestion('background', this.foregroundColor, suggestedBg, 'Suggested Background');
+      const suggestionItem = this.createSuggestion('background', this.foregroundColor, suggestedBg, 'Suggested Background');
+      suggestionsList.appendChild(suggestionItem);
       hasValidSuggestions = true;
     }
 
-    if (!hasValidSuggestions) {
+    if (hasValidSuggestions) {
+      // Add heading for suggestions
+      const heading = document.createElement('h3');
+      heading.className = 'suggestions-heading';
+      heading.textContent = 'Accessibility Improvements';
+      heading.id = 'suggestions-heading';
+      
+      // Add live region for announcements
+      const liveRegion = document.createElement('div');
+      liveRegion.setAttribute('aria-live', 'polite');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.className = 'sr-only';
+      liveRegion.textContent = `${suggestionsList.children.length} color suggestions available to improve accessibility`;
+      
+      this.suggestionsContainer.appendChild(heading);
+      this.suggestionsContainer.appendChild(liveRegion);
+      this.suggestionsContainer.appendChild(suggestionsList);
+      
+      // Focus management - move focus to first suggestion for keyboard users
+      setTimeout(() => {
+        const firstSuggestion = suggestionsList.querySelector('.suggestion-apply');
+        if (firstSuggestion && document.activeElement && document.activeElement.matches('input, button')) {
+          // Only move focus if user was interacting with form elements
+          firstSuggestion.focus();
+        }
+      }, 100);
+    } else {
       this.suggestionsContainer.innerHTML = `
-        <div class="suggestion-message">
-          <p>Current ratio: ${ratio.toFixed(2)}:1</p>
-          <p>Required: ${minRatio}:1 for ${this.complianceLevel} ${this.isLargeText ? 'large text' : 'normal text'}</p>
+        <div class="suggestion-message" role="status" aria-live="polite">
+          <h3 class="suggestions-heading">Contrast Information</h3>
+          <p>Current ratio: <strong>${ratio.toFixed(2)}:1</strong></p>
+          <p>Required: <strong>${minRatio}:1</strong> for ${this.complianceLevel} ${this.isLargeText ? 'large text' : 'normal text'}</p>
           <p>Try adjusting colors manually for better contrast.</p>
         </div>
       `;
@@ -210,29 +250,63 @@ export class ContrastAnalyzer {
 
   createSuggestion(type, foreground, background, label) {
     const ratio = calculateContrastRatio(foreground, background);
-    const suggestionDiv = document.createElement('div');
-    suggestionDiv.className = 'suggestion-item';
+    const suggestionItem = document.createElement('li');
+    suggestionItem.className = 'suggestion-item';
+    suggestionItem.setAttribute('role', 'listitem');
     
-    suggestionDiv.innerHTML = `
-      <div class="suggestion-colors">
-        <div class="suggestion-color" style="background-color: ${foreground}" title="${foreground}"></div>
-        <div class="suggestion-color" style="background-color: ${background}" title="${background}"></div>
-      </div>
-      <div class="suggestion-info">
-        <div class="suggestion-label">${label}</div>
-        <div class="suggestion-ratio">${ratio.toFixed(2)}:1</div>
-        <div class="suggestion-preview" style="color: ${foreground}; background-color: ${background};">
-          Sample Text
+    // Create unique IDs for accessibility
+    const suggestionId = `suggestion-${type}-${Date.now()}`;
+    const previewId = `preview-${type}-${Date.now()}`;
+    const applyButtonId = `apply-${type}-${Date.now()}`;
+    
+    suggestionItem.innerHTML = `
+      <div class="suggestion-content" id="${suggestionId}">
+        <div class="suggestion-colors" role="img" aria-label="Color preview: ${foreground} text on ${background} background">
+          <div class="suggestion-color suggestion-color--foreground" 
+               style="background-color: ${foreground}" 
+               title="Foreground color: ${foreground}"
+               aria-label="Foreground color ${foreground}"></div>
+          <div class="suggestion-color suggestion-color--background" 
+               style="background-color: ${background}" 
+               title="Background color: ${background}"
+               aria-label="Background color ${background}"></div>
+        </div>
+        <div class="suggestion-info">
+          <div class="suggestion-label">
+            <span class="suggestion-type">${label}</span>
+            <span class="suggestion-ratio" aria-label="Contrast ratio ${ratio.toFixed(2)} to 1">
+              ${ratio.toFixed(2)}:1
+            </span>
+          </div>
+          <div class="suggestion-preview" 
+               id="${previewId}"
+               style="color: ${foreground}; background-color: ${background};"
+               role="img"
+               aria-label="Preview of suggested colors">
+            Sample Text
+          </div>
+          <div class="suggestion-details">
+            <span class="color-values">
+              Text: ${foreground} | Background: ${background}
+            </span>
+          </div>
         </div>
       </div>
-      <button class="suggestion-apply" data-fg="${foreground}" data-bg="${background}">
-        Apply
+      <button class="suggestion-apply" 
+              id="${applyButtonId}"
+              data-fg="${foreground}" 
+              data-bg="${background}"
+              aria-describedby="${suggestionId}"
+              aria-label="Apply ${label.toLowerCase()}: ${foreground} on ${background}, contrast ratio ${ratio.toFixed(2)}:1">
+        <span class="button-text">Apply</span>
+        <span class="sr-only">this color combination</span>
       </button>
     `;
 
-    // Add click handler for apply button
-    const applyButton = suggestionDiv.querySelector('.suggestion-apply');
-    applyButton.addEventListener('click', () => {
+    // Add click and keyboard handlers for apply button
+    const applyButton = suggestionItem.querySelector('.suggestion-apply');
+    
+    const applyColors = () => {
       const fg = applyButton.dataset.fg;
       const bg = applyButton.dataset.bg;
       
@@ -241,10 +315,29 @@ export class ContrastAnalyzer {
         detail: { foreground: fg, background: bg }
       }));
       
-      this.showToast('Colors applied!', 'success');
+      // Announce the change to screen readers
+      const announcement = document.createElement('div');
+      announcement.setAttribute('aria-live', 'assertive');
+      announcement.className = 'sr-only';
+      announcement.textContent = `Colors applied: ${fg} text on ${bg} background with ${ratio.toFixed(2)}:1 contrast ratio`;
+      document.body.appendChild(announcement);
+      
+      setTimeout(() => {
+        document.body.removeChild(announcement);
+      }, 1000);
+      
+      this.showToast('Colors applied successfully!', 'success');
+    };
+
+    applyButton.addEventListener('click', applyColors);
+    applyButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        applyColors();
+      }
     });
 
-    this.suggestionsContainer.appendChild(suggestionDiv);
+    return suggestionItem;
   }
 
   getContrastRatio() {
