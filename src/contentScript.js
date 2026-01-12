@@ -1,3 +1,5 @@
+import { blendColors, parseCssColor, toHex } from './utils/color';
+
 let isPickingColor = false;
 let originalCursor = '';
 
@@ -20,23 +22,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const element = document.elementFromPoint(e.clientX, e.clientY);
         if (!element) return;
 
-        // Get computed style
         const computedStyle = window.getComputedStyle(element);
-        const color = computedStyle.backgroundColor || computedStyle.color;
-
-        // Convert to hex
-        let hex = '#CCCCCC'; // Default fallback
-
-        if (color && color !== 'transparent' && color !== 'rgba(0, 0, 0, 0)') {
-          // Parse RGB/RGBA values
-          const rgb = color.match(/\d+/g);
-          if (rgb && rgb.length >= 3) {
-            hex = '#' + [rgb[0], rgb[1], rgb[2]].map(x => {
-              const hex = parseInt(x).toString(16);
-              return hex.length === 1 ? '0' + hex : hex;
-            }).join('');
-          }
-        }
+        const backgroundColor = parseCssColor(computedStyle.backgroundColor);
+        const textColor = parseCssColor(computedStyle.color);
+        const effectiveBackground = getEffectiveBackgroundColor(element);
+        const effectiveText = textColor && textColor.a < 1
+          ? blendColors(textColor, effectiveBackground)
+          : textColor;
+        const pickedColor = backgroundColor && backgroundColor.a > 0
+          ? backgroundColor
+          : effectiveText;
+        const hex = toHex(pickedColor) || '#CCCCCC';
 
         // Show preview tooltip
         showColorPreview(e.clientX, e.clientY, hex, element.tagName.toLowerCase());
@@ -61,30 +57,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           return;
         }
 
-        // Get computed style
         const computedStyle = window.getComputedStyle(element);
-
-        // Try to get background color first
-        let targetColor = computedStyle.backgroundColor;
-
-        // If background is transparent, try color (text color)
-        if (targetColor === 'transparent' || targetColor === 'rgba(0, 0, 0, 0)') {
-          targetColor = computedStyle.color;
-        }
-
-        // Convert to hex
-        let hex = '#CCCCCC'; // Default fallback
-
-        if (targetColor) {
-          // Parse RGB/RGBA values
-          const rgb = targetColor.match(/\d+/g);
-          if (rgb && rgb.length >= 3) {
-            hex = '#' + [rgb[0], rgb[1], rgb[2]].map(x => {
-              const hex = parseInt(x).toString(16);
-              return hex.length === 1 ? '0' + hex : hex;
-            }).join('').toUpperCase();
-          }
-        }
+        const backgroundColor = parseCssColor(computedStyle.backgroundColor);
+        const textColor = parseCssColor(computedStyle.color);
+        const effectiveBackground = getEffectiveBackgroundColor(element);
+        const effectiveText = textColor && textColor.a < 1
+          ? blendColors(textColor, effectiveBackground)
+          : textColor;
+        const pickedColor = backgroundColor && backgroundColor.a > 0
+          ? backgroundColor
+          : effectiveText;
+        const hex = toHex(pickedColor) || '#CCCCCC';
 
         cleanup();
         sendResponse({ color: hex });
@@ -185,4 +168,26 @@ function removeColorPreview() {
   if (preview) {
     preview.remove();
   }
-} 
+}
+
+function getEffectiveBackgroundColor(element) {
+  const layers = [];
+  let current = element;
+
+  while (current && current.nodeType === Node.ELEMENT_NODE) {
+    const computedStyle = window.getComputedStyle(current);
+    const background = parseCssColor(computedStyle.backgroundColor);
+    if (background) {
+      layers.unshift(background);
+    }
+    current = current.parentElement;
+  }
+
+  let composite = { r: 255, g: 255, b: 255, a: 1 };
+  layers.forEach(layer => {
+    if (layer.a === 0) return;
+    composite = blendColors(layer, composite);
+  });
+
+  return composite;
+}
