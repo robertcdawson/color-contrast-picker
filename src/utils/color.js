@@ -31,7 +31,7 @@ export function parseCssColor(color) {
     const [r, g, b] = parts.slice(0, 3).map(value => parseFloat(value));
     const a = parts.length === 4 ? parseFloat(parts[3]) : 1;
     if ([r, g, b, a].some(value => Number.isNaN(value))) return null;
-    return { r, g, b, a: clampAlpha(a) };
+    return { r: clampChannel(r), g: clampChannel(g), b: clampChannel(b), a: clampAlpha(a) };
   }
 
   return null;
