@@ -36,6 +36,7 @@ bower_components
 # IDEs and editors
 .idea/
 .vscode/
+.cursor/
 *.swp
 *.swo
 .DS_Store
@@ -92,3 +93,8 @@ public
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# Chrome Extension Packing
+*.pem
+*.crx
+*.zip
