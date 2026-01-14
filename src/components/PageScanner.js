@@ -17,6 +17,8 @@ export class PageScanner {
     const scanButton = document.getElementById('scanPageButton');
     const toggleOverlaysButton = document.getElementById('toggleOverlaysButton');
     const clearOverlaysButton = document.getElementById('clearOverlaysButton');
+    const exportJsonButton = document.getElementById('exportResultsJson');
+    const exportCsvButton = document.getElementById('exportResultsCsv');
 
     if (scanButton) {
       scanButton.addEventListener('click', () => this.scanPage());
@@ -28,6 +30,14 @@ export class PageScanner {
 
     if (clearOverlaysButton) {
       clearOverlaysButton.addEventListener('click', () => this.clearOverlays());
+    }
+
+    if (exportJsonButton) {
+      exportJsonButton.addEventListener('click', () => this.exportResults('json'));
+    }
+
+    if (exportCsvButton) {
+      exportCsvButton.addEventListener('click', () => this.exportResults('csv'));
     }
   }
 
@@ -157,6 +167,9 @@ export class PageScanner {
             <span class="stat-label">Passed</span>
           </div>
         </div>
+        <div class="summary-meta">
+          <span>Total scanned: ${this.scanResults.length}</span>
+        </div>
       </div>
     `;
 
@@ -222,6 +235,7 @@ export class PageScanner {
     const textPreview = result.element.textContent.length > 50 
       ? result.element.textContent.substring(0, 50) + '...'
       : result.element.textContent;
+    const selectorLabel = result.element.selector ? ` • ${result.element.selector}` : '';
 
     return `
       <div class="result-item ${type}" data-element-id="${result.id}">
@@ -231,7 +245,7 @@ export class PageScanner {
         </div>
         <div class="result-info">
           <div class="result-ratio">${ratio}:1</div>
-          <div class="result-element">${result.element.tagName.toLowerCase()}</div>
+          <div class="result-element">${result.element.tagName.toLowerCase()}${selectorLabel}</div>
           <div class="result-text">${textPreview}</div>
         </div>
         <div class="result-actions">
@@ -435,6 +449,8 @@ export class PageScanner {
     const scanButton = document.getElementById('scanPageButton');
     const toggleOverlaysButton = document.getElementById('toggleOverlaysButton');
     const clearOverlaysButton = document.getElementById('clearOverlaysButton');
+    const exportJsonButton = document.getElementById('exportResultsJson');
+    const exportCsvButton = document.getElementById('exportResultsCsv');
 
     if (scanButton) {
       scanButton.disabled = this.isScanning;
@@ -453,6 +469,77 @@ export class PageScanner {
     if (clearOverlaysButton) {
       clearOverlaysButton.disabled = !this.overlaysActive;
     }
+
+    if (exportJsonButton) {
+      exportJsonButton.disabled = this.scanResults.length === 0;
+    }
+
+    if (exportCsvButton) {
+      exportCsvButton.disabled = this.scanResults.length === 0;
+    }
+  }
+
+  exportResults(format) {
+    if (!this.scanResults.length) {
+      this.showError('No scan results to export');
+      return;
+    }
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+    if (format === 'json') {
+      const payload = {
+        scannedAt: new Date().toISOString(),
+        total: this.scanResults.length,
+        results: this.scanResults
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      this.downloadFile(blob, `contrast-scan-${timestamp}.json`);
+      return;
+    }
+
+    if (format === 'csv') {
+      const headers = [
+        'selector',
+        'tag',
+        'text_preview',
+        'contrast_ratio',
+        'passes_aa',
+        'passes_aaa',
+        'is_large_text',
+        'font_size',
+        'font_weight',
+        'text_color',
+        'background_color'
+      ];
+      const rows = this.scanResults.map(result => ([
+        result.element.selector,
+        result.element.tagName.toLowerCase(),
+        result.element.textContent.replace(/"/g, '""'),
+        result.contrast.ratio.toFixed(2),
+        result.contrast.passesAA,
+        result.contrast.passesAAA,
+        result.contrast.isLargeText,
+        result.typography.fontSize,
+        result.typography.fontWeight,
+        result.colors.text,
+        result.colors.background
+      ]));
+      const csv = [headers.join(','), ...rows.map(row => row.map(cell => `"${cell}"`).join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      this.downloadFile(blob, `contrast-scan-${timestamp}.csv`);
+    }
+  }
+
+  downloadFile(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
   showError(message) {
@@ -530,35 +617,88 @@ export class PageScanner {
 
 function scanPageElements() {
   // Helper function to get effective background color
-  const getEffectiveBackgroundColor = (element) => {
-    let current = element;
-    
-    while (current && current !== document.body) {
-      const style = window.getComputedStyle(current);
-      const bgColor = style.backgroundColor;
-      
-      if (bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)') {
-        return bgColor;
-      }
-      
-      current = current.parentElement;
+  const parseCssColor = (color) => {
+    if (!color) return null;
+    const normalized = color.trim().toLowerCase();
+    if (normalized === 'transparent') {
+      return { r: 0, g: 0, b: 0, a: 0 };
     }
-    
-    // Default to white if no background found
-    return 'rgb(255, 255, 255)';
+    if (normalized.startsWith('#')) {
+      const hex = normalized.slice(1);
+      if (hex.length === 3) {
+        return {
+          r: parseInt(hex[0] + hex[0], 16),
+          g: parseInt(hex[1] + hex[1], 16),
+          b: parseInt(hex[2] + hex[2], 16),
+          a: 1
+        };
+      }
+      if (hex.length === 6) {
+        return {
+          r: parseInt(hex.slice(0, 2), 16),
+          g: parseInt(hex.slice(2, 4), 16),
+          b: parseInt(hex.slice(4, 6), 16),
+          a: 1
+        };
+      }
+    }
+    const rgbMatch = normalized.match(/^rgba?\(([^)]+)\)$/);
+    if (rgbMatch) {
+      const parts = rgbMatch[1].split(',').map(value => value.trim());
+      if (parts.length < 3) return null;
+      const [r, g, b] = parts.slice(0, 3).map(value => parseFloat(value));
+      const a = parts.length === 4 ? parseFloat(parts[3]) : 1;
+      if ([r, g, b, a].some(value => Number.isNaN(value))) return null;
+      return { r, g, b, a: Math.min(1, Math.max(0, a)) };
+    }
+    return null;
   };
 
-  // Helper function to convert RGB to hex
-  const rgbToHex = (rgb) => {
-    if (!rgb) return null;
-    
-    const match = rgb.match(/\d+/g);
-    if (!match || match.length < 3) return null;
-    
-    return '#' + match.slice(0, 3).map(x => {
-      const hex = parseInt(x).toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
-    }).join('').toUpperCase();
+  const blendColors = (foreground, background) => {
+    const fgAlpha = Math.min(1, Math.max(0, foreground.a ?? 1));
+    const bgAlpha = Math.min(1, Math.max(0, background.a ?? 1));
+    const outAlpha = fgAlpha + bgAlpha * (1 - fgAlpha);
+
+    if (outAlpha === 0) {
+      return { r: 0, g: 0, b: 0, a: 0 };
+    }
+
+    return {
+      r: Math.round((foreground.r * fgAlpha + background.r * bgAlpha * (1 - fgAlpha)) / outAlpha),
+      g: Math.round((foreground.g * fgAlpha + background.g * bgAlpha * (1 - fgAlpha)) / outAlpha),
+      b: Math.round((foreground.b * fgAlpha + background.b * bgAlpha * (1 - fgAlpha)) / outAlpha),
+      a: outAlpha
+    };
+  };
+
+  const toHex = (color) => {
+    if (!color) return null;
+    const r = Math.min(255, Math.max(0, Math.round(color.r)));
+    const g = Math.min(255, Math.max(0, Math.round(color.g)));
+    const b = Math.min(255, Math.max(0, Math.round(color.b)));
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
+  };
+
+  const getEffectiveBackgroundColor = (element) => {
+    const layers = [];
+    let current = element;
+
+    while (current && current.nodeType === Node.ELEMENT_NODE) {
+      const style = window.getComputedStyle(current);
+      const bgColor = parseCssColor(style.backgroundColor);
+      if (bgColor) {
+        layers.unshift(bgColor);
+      }
+      current = current.parentElement;
+    }
+
+    let composite = { r: 255, g: 255, b: 255, a: 1 };
+    layers.forEach(layer => {
+      if (layer.a === 0) return;
+      composite = blendColors(layer, composite);
+    });
+
+    return composite;
   };
 
   // Helper function to calculate contrast ratio
@@ -676,17 +816,31 @@ function scanPageElements() {
         return;
       }
 
-      const textColor = computedStyle.color;
+      const rect = element.getBoundingClientRect();
+
+      if (rect.width < 2 || rect.height < 2) {
+        return;
+      }
+
+      if (element.textContent.trim().length < 2) {
+        return;
+      }
+
+      const textColor = parseCssColor(computedStyle.color);
       const backgroundColor = getEffectiveBackgroundColor(element);
-      
+
       if (!textColor || !backgroundColor) {
         console.log('Page Scanner: Skipping element - no color info', element);
         return;
       }
 
+      const effectiveTextColor = textColor.a < 1
+        ? blendColors(textColor, backgroundColor)
+        : textColor;
+
       // Convert colors to hex
-      const textHex = rgbToHex(textColor);
-      const bgHex = rgbToHex(backgroundColor);
+      const textHex = toHex(effectiveTextColor);
+      const bgHex = toHex(backgroundColor);
       
       if (!textHex || !bgHex) {
         console.log('Page Scanner: Skipping element - color conversion failed', textColor, backgroundColor);
@@ -713,9 +867,6 @@ function scanPageElements() {
       const passesAA = contrastRatio >= minRatio;
       const passesAAA = contrastRatio >= minRatioAAA;
 
-      // Get element position and size for overlay
-      const rect = element.getBoundingClientRect();
-      
       const result = {
         id: `element-${index}`,
         element: {
@@ -732,6 +883,10 @@ function scanPageElements() {
           passesAA,
           passesAAA,
           isLargeText
+        },
+        typography: {
+          fontSize,
+          fontWeight
         },
         position: {
           top: rect.top + window.scrollY,

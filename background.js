@@ -100,38 +100,4 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
-// Keep service worker alive during active operations (simplified approach)
-let isActive = false;
-
-function keepAlive() {
-  if (isActive) {
-    // Lightweight operation to prevent service worker termination
-    chrome.runtime.getPlatformInfo(() => {
-      // This keeps the service worker active
-    });
-    setTimeout(keepAlive, 20000); // Check again in 20 seconds
-  }
-}
-
-// Start keep-alive when extension becomes active
-function startKeepAlive() {
-  if (!isActive) {
-    isActive = true;
-    keepAlive();
-  }
-}
-
-// Stop keep-alive when extension becomes inactive
-function stopKeepAlive() {
-  isActive = false;
-}
-
-// Monitor extension activity
-chrome.runtime.onMessage.addListener(() => {
-  startKeepAlive();
-});
-
-// Auto-stop keep-alive after period of inactivity
-setTimeout(() => {
-  stopKeepAlive();
-}, 300000); // Stop after 5 minutes of inactivity
+// Manifest V3 service workers are event-driven; avoid keep-alive loops.
