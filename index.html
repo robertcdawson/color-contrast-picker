@@ -147,26 +147,13 @@
 
       <!-- Right Column: Secondary Features -->
       <div class="right-column">
-        <!-- Collapsible Suggestions -->
-        <section class="suggestions-section">
-          <button class="section-toggle" id="suggestionsToggle" aria-expanded="false">
-            <span>Suggestions</span>
-            <i class="fas fa-chevron-down"></i>
-          </button>
-          <div class="collapsible-content" id="suggestionsContent">
-            <div class="suggestions-container" id="suggestionsContainer">
-              <div class="no-suggestions">Colors meet WCAG standards</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Page Scanner Section -->
+        <!-- Page Scanner Section (Primary Feature) -->
         <section class="page-scanner-section">
-          <button class="section-toggle" id="pageScannerToggle" aria-expanded="false">
+          <button class="section-toggle expanded" id="pageScannerToggle" aria-expanded="true">
             <span>Page Scanner</span>
             <i class="fas fa-chevron-down"></i>
           </button>
-          <div class="collapsible-content" id="pageScannerContent">
+          <div class="collapsible-content expanded" id="pageScannerContent">
             <div class="scanner-controls">
               <div class="scanner-actions">
                 <button id="scanPageButton" class="scanner-button primary">
@@ -196,8 +183,21 @@
             <div class="scan-results-container" id="scanResultsContainer">
               <div class="no-results">
                 <i class="fas fa-search"></i>
-                <span>Click "Scan Page" to analyze contrast on this page</span>
+                <span>Click "Scan Page" to find contrast issues on this page</span>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Collapsible Suggestions (for Manual Color Picker) -->
+        <section class="suggestions-section">
+          <button class="section-toggle" id="suggestionsToggle" aria-expanded="false">
+            <span>Color Picker Suggestions</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="collapsible-content" id="suggestionsContent">
+            <div class="suggestions-container" id="suggestionsContainer">
+              <div class="no-suggestions">Pick colors above to check contrast</div>
             </div>
           </div>
         </section>

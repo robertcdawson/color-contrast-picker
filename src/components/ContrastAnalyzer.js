@@ -100,7 +100,7 @@ export class ContrastAnalyzer {
     // Calculate contrast ratio
     const ratio = calculateContrastRatio(this.foregroundColor, this.backgroundColor);
     const formattedRatio = ratio.toFixed(2);
-    
+
     // Update ratio display
     if (this.ratioValue) {
       this.ratioValue.textContent = formattedRatio;
@@ -115,15 +115,15 @@ export class ContrastAnalyzer {
     // Determine compliance status
     const complianceStatus = getWCAGLevel(ratio, this.complianceLevel, this.isLargeText ? 'large' : 'normal');
     const isPassing = complianceStatus.includes('Pass');
-    
+
     // Update compliance status badge
     if (this.complianceStatus) {
       const icon = this.complianceStatus.querySelector('i');
       const text = this.complianceStatus.querySelector('span');
-      
+
       // Remove existing status classes
       this.complianceStatus.classList.remove('status-pass', 'status-fail', 'status-warning');
-      
+
       if (isPassing) {
         this.complianceStatus.classList.add('status-pass');
         if (icon) icon.className = 'fas fa-check';
@@ -161,17 +161,17 @@ export class ContrastAnalyzer {
 
     if (isPassing) {
       this.suggestionsContainer.innerHTML = `
-        <div class="no-suggestions" role="status" aria-live="polite">
-          <span class="sr-only">Accessibility status: </span>
-          Colors meet WCAG standards
+        <div class="no-suggestions success" role="status" aria-live="polite">
+          <i class="fas fa-check-circle"></i>
+          <span>These colors pass WCAG ${this.complianceLevel} standards</span>
         </div>
       `;
       return;
     }
 
     // Get suggested colors
-    const minRatio = this.complianceLevel === 'AAA' 
-      ? (this.isLargeText ? 4.5 : 7) 
+    const minRatio = this.complianceLevel === 'AAA'
+      ? (this.isLargeText ? 4.5 : 7)
       : (this.isLargeText ? 3 : 4.5);
 
     // Try to suggest a better foreground color
@@ -216,18 +216,18 @@ export class ContrastAnalyzer {
       heading.className = 'suggestions-heading';
       heading.textContent = 'Accessibility Improvements';
       heading.id = 'suggestions-heading';
-      
+
       // Add live region for announcements
       const liveRegion = document.createElement('div');
       liveRegion.setAttribute('aria-live', 'polite');
       liveRegion.setAttribute('aria-atomic', 'true');
       liveRegion.className = 'sr-only';
       liveRegion.textContent = `${suggestionsList.children.length} color suggestions available to improve accessibility`;
-      
+
       this.suggestionsContainer.appendChild(heading);
       this.suggestionsContainer.appendChild(liveRegion);
       this.suggestionsContainer.appendChild(suggestionsList);
-      
+
       // Focus management - move focus to first suggestion for keyboard users
       setTimeout(() => {
         const firstSuggestion = suggestionsList.querySelector('.suggestion-apply');
@@ -253,12 +253,12 @@ export class ContrastAnalyzer {
     const suggestionItem = document.createElement('li');
     suggestionItem.className = 'suggestion-item';
     suggestionItem.setAttribute('role', 'listitem');
-    
+
     // Create unique IDs for accessibility
     const suggestionId = `suggestion-${type}-${Date.now()}`;
     const previewId = `preview-${type}-${Date.now()}`;
     const applyButtonId = `apply-${type}-${Date.now()}`;
-    
+
     suggestionItem.innerHTML = `
       <div class="suggestion-content" id="${suggestionId}">
         <div class="suggestion-colors" role="img" aria-label="Color preview: ${foreground} text on ${background} background">
@@ -305,27 +305,27 @@ export class ContrastAnalyzer {
 
     // Add click and keyboard handlers for apply button
     const applyButton = suggestionItem.querySelector('.suggestion-apply');
-    
+
     const applyColors = () => {
       const fg = applyButton.dataset.fg;
       const bg = applyButton.dataset.bg;
-      
+
       // Dispatch event to update colors
       document.dispatchEvent(new CustomEvent('colorUpdate', {
         detail: { foreground: fg, background: bg }
       }));
-      
+
       // Announce the change to screen readers
       const announcement = document.createElement('div');
       announcement.setAttribute('aria-live', 'assertive');
       announcement.className = 'sr-only';
       announcement.textContent = `Colors applied: ${fg} text on ${bg} background with ${ratio.toFixed(2)}:1 contrast ratio`;
       document.body.appendChild(announcement);
-      
+
       setTimeout(() => {
         document.body.removeChild(announcement);
       }, 1000);
-      
+
       this.showToast('Colors applied successfully!', 'success');
     };
 

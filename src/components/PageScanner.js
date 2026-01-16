@@ -50,28 +50,28 @@ export class PageScanner {
     try {
       // Get the active tab
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      
+
       if (!tab) {
         throw new Error('No active tab found');
       }
 
       // Check if the current page allows script injection
       const url = tab.url;
-      
+
       // Only block browser internal pages, but allow file:// URLs for local development
-      if (url.startsWith('chrome://') || 
-          url.startsWith('chrome-extension://') || 
-          url.startsWith('edge://') || 
-          url.startsWith('about:') ||
-          url.startsWith('moz-extension://')) {
+      if (url.startsWith('chrome://') ||
+        url.startsWith('chrome-extension://') ||
+        url.startsWith('edge://') ||
+        url.startsWith('about:') ||
+        url.startsWith('moz-extension://')) {
         throw new Error('Cannot scan this page. Page scanning is not allowed on browser internal pages.');
       }
 
       // Special handling for new tab pages and empty URLs
-      if (url === 'chrome://newtab/' || 
-          url === 'edge://newtab/' || 
-          url === 'about:blank' ||
-          !url || url === '') {
+      if (url === 'chrome://newtab/' ||
+        url === 'edge://newtab/' ||
+        url === 'about:blank' ||
+        !url || url === '') {
         throw new Error('Cannot scan this page. Please navigate to a website or local HTML file first.');
       }
 
@@ -97,10 +97,10 @@ export class PageScanner {
       }
     } catch (error) {
       console.error('Error scanning page:', error);
-      
+
       // Provide more specific error messages based on the error type
       let errorMessage = 'Failed to scan page. Please try again.';
-      
+
       if (error.message.includes('Cannot access')) {
         errorMessage = 'Cannot access this page. The page may have security restrictions.';
       } else if (error.message.includes('not allowed')) {
@@ -116,7 +116,7 @@ export class PageScanner {
       } else if (error.message.includes('activeTab')) {
         errorMessage = 'Permission denied. Please make sure the extension has access to this page.';
       }
-      
+
       this.showError(errorMessage);
     } finally {
       this.isScanning = false;
@@ -174,7 +174,7 @@ export class PageScanner {
     `;
 
     let resultsHTML = '';
-    
+
     if (violations.length > 0) {
       resultsHTML += `
         <div class="results-section" id="violationsSection">
@@ -219,7 +219,7 @@ export class PageScanner {
     }
 
     container.innerHTML = summaryHTML + resultsHTML;
-    
+
     // Add click handlers for result items
     this.setupResultItemHandlers();
 
@@ -232,10 +232,14 @@ export class PageScanner {
 
   createResultItem(result, type) {
     const ratio = result.contrast.ratio.toFixed(2);
-    const textPreview = result.element.textContent.length > 50 
+    const textPreview = result.element.textContent.length > 50
       ? result.element.textContent.substring(0, 50) + '...'
       : result.element.textContent;
     const selectorLabel = result.element.selector ? ` • ${result.element.selector}` : '';
+
+    const bgImageWarning = result.hasBackgroundImage
+      ? '<span class="warning-icon" title="Background image detected - contrast may be inaccurate"><i class="fas fa-image"></i></span>'
+      : '';
 
     return `
       <div class="result-item ${type}" data-element-id="${result.id}">
@@ -244,7 +248,7 @@ export class PageScanner {
           <div class="result-color" style="background-color: ${result.colors.background}" title="Background: ${result.colors.background}"></div>
         </div>
         <div class="result-info">
-          <div class="result-ratio">${ratio}:1</div>
+          <div class="result-ratio">${ratio}:1 ${bgImageWarning}</div>
           <div class="result-element">${result.element.tagName.toLowerCase()}${selectorLabel}</div>
           <div class="result-text">${textPreview}</div>
         </div>
@@ -252,8 +256,8 @@ export class PageScanner {
           <button class="result-action highlight-btn" title="Highlight on page">
             <i class="fas fa-search"></i>
           </button>
-          <button class="result-action fix-btn" title="Use these colors">
-            <i class="fas fa-arrow-right"></i>
+          <button class="result-action fix-btn" title="Edit in Color Picker">
+            <i class="fas fa-eye-dropper"></i>
           </button>
         </div>
       </div>
@@ -264,18 +268,36 @@ export class PageScanner {
     const container = document.getElementById('scanResultsContainer');
     if (!container) return;
 
-    // Highlight buttons
+    // Generic handler for result items to support hover
+    container.querySelectorAll('.result-item').forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        const elementId = item.dataset.elementId;
+        this.highlightElement(elementId, { scrollTo: false, temporary: false });
+      });
+
+      item.addEventListener('mouseleave', () => {
+        // We only remove the highlight if it was triggered by hover (not persistent)
+        // For simplicity in this version, let's just clear all highlights on mouseleave
+        // or we could add a specific class for hover highlights.
+        // Let's rely on clearOverlays/re-scan for persistent ones, or just clear.
+        this.clearHighlights();
+      });
+    });
+
+    // Highlight buttons (keep for "find" functionality)
     container.querySelectorAll('.highlight-btn').forEach(button => {
       button.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent bubbling to result-item
         const resultItem = e.target.closest('.result-item');
         const elementId = resultItem.dataset.elementId;
-        this.highlightElement(elementId);
+        this.highlightElement(elementId, { scrollTo: true, temporary: true });
       });
     });
 
     // Fix buttons
     container.querySelectorAll('.fix-btn').forEach(button => {
       button.addEventListener('click', (e) => {
+        e.stopPropagation();
         const resultItem = e.target.closest('.result-item');
         const elementId = resultItem.dataset.elementId;
         this.useColorsFromResult(elementId);
@@ -283,29 +305,48 @@ export class PageScanner {
     });
   }
 
-  async highlightElement(elementId) {
+  async clearHighlights() {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      
+      if (!tab) return;
+
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        func: (id) => {
+        func: () => {
+          document.querySelectorAll('.contrast-highlight').forEach(el => el.remove());
+        }
+      });
+    } catch (error) {
+      // Ignore errors if tab is gone
+    }
+  }
+
+  async highlightElement(elementId, options = { scrollTo: true, temporary: true }) {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: (id, opts) => {
           // Remove existing highlights
           document.querySelectorAll('.contrast-highlight').forEach(el => el.remove());
-          
+
           // Find the result for this element
           const elementIndex = parseInt(id.replace('element-', ''));
           const elements = document.querySelectorAll('*');
           const targetElement = elements[elementIndex];
-          
+
           if (targetElement) {
             const rect = targetElement.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
             const highlight = document.createElement('div');
             highlight.className = 'contrast-highlight';
             highlight.style.cssText = `
-              position: fixed;
-              top: ${rect.top}px;
-              left: ${rect.left}px;
+              position: absolute;
+              top: ${rect.top + scrollTop}px;
+              left: ${rect.left + scrollLeft}px;
               width: ${rect.width}px;
               height: ${rect.height}px;
               border: 3px solid #ef4444;
@@ -313,32 +354,44 @@ export class PageScanner {
               pointer-events: none;
               z-index: 2147483647;
               border-radius: 4px;
-              animation: pulse 2s infinite;
+              box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+              transition: all 0.2s ease;
             `;
-            
-            // Add pulse animation
-            const style = document.createElement('style');
-            style.textContent = `
-              @keyframes pulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.5; }
+
+            // Add pulse animation only for "find" action
+            if (opts.temporary) {
+              highlight.style.animation = 'pulse 2s infinite';
+
+              const style = document.createElement('style');
+              style.id = 'contrast-animations';
+              if (!document.getElementById('contrast-animations')) {
+                style.textContent = `
+                   @keyframes pulse {
+                     0%, 100% { opacity: 1; }
+                     50% { opacity: 0.5; }
+                   }
+                 `;
+                document.head.appendChild(style);
               }
-            `;
-            document.head.appendChild(style);
-            
+            }
+
             document.body.appendChild(highlight);
-            
-            // Remove highlight after 5 seconds
-            setTimeout(() => {
-              highlight.remove();
-              style.remove();
-            }, 5000);
-            
-            // Scroll element into view
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            if (opts.temporary) {
+              // Remove highlight after 5 seconds
+              setTimeout(() => {
+                highlight.remove();
+                // Don't remove style as it might be used by other highlights
+              }, 5000);
+            }
+
+            if (opts.scrollTo) {
+              // Scroll element into view
+              targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
           }
         },
-        args: [elementId]
+        args: [elementId, options]
       });
     } catch (error) {
       console.error('Error highlighting element:', error);
@@ -350,6 +403,14 @@ export class PageScanner {
     if (result && window.colorPicker) {
       window.colorPicker.setForegroundColor(result.colors.text);
       window.colorPicker.setBackgroundColor(result.colors.background);
+
+      // Scroll to top to show the analyzer and suggestions
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Show feedback
+      if (window.showToast) {
+        window.showToast('Colors loaded into picker', 'info');
+      }
     }
   }
 
@@ -369,51 +430,72 @@ export class PageScanner {
 
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      
+
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: (results) => {
           // Remove existing overlays
           document.querySelectorAll('.contrast-overlay').forEach(el => el.remove());
-          
+
+          // Helper to find element by index
+          const getElementByIndex = (index) => {
+            const elements = document.querySelectorAll('*');
+            return elements[index];
+          };
+
           // Add overlays for violations
           const violations = results.filter(r => !r.contrast.passesAA);
-          
-          violations.forEach((result, index) => {
-            const overlay = document.createElement('div');
-            overlay.className = 'contrast-overlay';
-            overlay.style.cssText = `
-              position: absolute;
-              top: ${result.position.top}px;
-              left: ${result.position.left}px;
-              width: ${result.position.width}px;
-              height: ${result.position.height}px;
-              border: 2px solid #ef4444;
-              background: rgba(239, 68, 68, 0.1);
-              pointer-events: none;
-              z-index: 2147483646;
-              border-radius: 2px;
-            `;
-            
-            // Add tooltip
-            const tooltip = document.createElement('div');
-            tooltip.className = 'contrast-tooltip';
-            tooltip.style.cssText = `
-              position: absolute;
-              top: -30px;
-              left: 0;
-              background: #1e293b;
-              color: white;
-              padding: 4px 8px;
-              border-radius: 4px;
-              font-size: 12px;
-              white-space: nowrap;
-              z-index: 2147483647;
-            `;
-            tooltip.textContent = `${result.contrast.ratio.toFixed(2)}:1 (Fails AA)`;
-            
-            overlay.appendChild(tooltip);
-            document.body.appendChild(overlay);
+
+          violations.forEach((result) => {
+            // Find element again to get fresh position
+            const elementIndex = parseInt(result.id.replace('element-', ''));
+            const targetElement = getElementByIndex(elementIndex);
+
+            if (targetElement) {
+              const rect = targetElement.getBoundingClientRect();
+              // Check if element is visible
+              if (rect.width === 0 || rect.height === 0 || rect.bottom < 0) return;
+
+              const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+              const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+              const overlay = document.createElement('div');
+              overlay.className = 'contrast-overlay';
+              overlay.style.cssText = `
+                position: absolute;
+                top: ${rect.top + scrollTop}px;
+                left: ${rect.left + scrollLeft}px;
+                width: ${rect.width}px;
+                height: ${rect.height}px;
+                border: 2px solid #ef4444;
+                background: rgba(239, 68, 68, 0.1);
+                pointer-events: none;
+                z-index: 2147483646;
+                border-radius: 2px;
+                box-shadow: 0 0 5px rgba(239, 68, 68, 0.3);
+              `;
+
+              // Add tooltip
+              const tooltip = document.createElement('div');
+              tooltip.className = 'contrast-tooltip';
+              tooltip.style.cssText = `
+                position: absolute;
+                top: -30px;
+                left: 0;
+                background: #1e293b;
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                white-space: nowrap;
+                z-index: 2147483647;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+              `;
+              tooltip.textContent = `${result.contrast.ratio.toFixed(2)}:1`;
+
+              overlay.appendChild(tooltip);
+              document.body.appendChild(overlay);
+            }
           });
         },
         args: [this.scanResults]
@@ -430,7 +512,7 @@ export class PageScanner {
   async clearOverlays() {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      
+
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: () => {
@@ -454,7 +536,7 @@ export class PageScanner {
 
     if (scanButton) {
       scanButton.disabled = this.isScanning;
-      scanButton.innerHTML = this.isScanning 
+      scanButton.innerHTML = this.isScanning
         ? '<i class="fas fa-spinner fa-spin"></i> Scanning...'
         : '<i class="fas fa-search"></i> Scan Page';
     }
@@ -620,7 +702,7 @@ function scanPageElements() {
   const parseCssColor = (color) => {
     if (!color) return null;
     const normalized = color.trim().toLowerCase();
-    if (normalized === 'transparent') {
+    if (normalized === 'transparent' || normalized === 'rgba(0, 0, 0, 0)') {
       return { r: 0, g: 0, b: 0, a: 0 };
     }
     if (normalized.startsWith('#')) {
@@ -698,7 +780,18 @@ function scanPageElements() {
       composite = blendColors(layer, composite);
     });
 
-    return composite;
+    // Check for background image
+    let hasBackgroundImage = false;
+    current = element;
+    while (current && current.nodeType === Node.ELEMENT_NODE) {
+      const style = window.getComputedStyle(current);
+      if (style.backgroundImage && style.backgroundImage !== 'none') {
+        hasBackgroundImage = true;
+      }
+      current = current.parentElement;
+    }
+
+    return { color: composite, hasBackgroundImage };
   };
 
   // Helper function to calculate contrast ratio
@@ -713,7 +806,7 @@ function scanPageElements() {
     const lum2 = getLuminance(color2);
     const brightest = Math.max(lum1, lum2);
     const darkest = Math.min(lum1, lum2);
-    
+
     return (brightest + 0.05) / (darkest + 0.05);
   };
 
@@ -722,14 +815,14 @@ function scanPageElements() {
     if (element.id) {
       return `#${element.id}`;
     }
-    
+
     if (element.className) {
       const classes = element.className.split(' ').filter(c => c.trim());
       if (classes.length > 0) {
         return `${element.tagName.toLowerCase()}.${classes[0]}`;
       }
     }
-    
+
     return element.tagName.toLowerCase();
   };
 
@@ -743,50 +836,50 @@ function scanPageElements() {
   const isLeafTextElement = (element) => {
     // Check if this element has text content
     if (!hasTextContent(element)) return false;
-    
+
     // Check if any child elements also have text content
     const childrenWithText = Array.from(element.children).filter(child => hasTextContent(child));
-    
+
     // If no children have text, this is a leaf text element
     // OR if this element has significantly more text than its children combined
     if (childrenWithText.length === 0) return true;
-    
+
     const elementText = element.textContent.trim().length;
     const childrenText = childrenWithText.reduce((sum, child) => sum + child.textContent.trim().length, 0);
-    
+
     // If this element has more than 50% more text than its children, consider it a text element
     return elementText > childrenText * 1.5;
   };
 
   console.log('Page Scanner: Starting element analysis...');
-  
+
   const results = [];
   const allElements = document.querySelectorAll('*');
   const processedElements = new Set();
-  
+
   console.log(`Page Scanner: Found ${allElements.length} total elements`);
 
   // Focus on common text-containing elements first
   const textSelectors = [
-    'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'div', 'a', 'li', 'td', 'th', 
+    'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'div', 'a', 'li', 'td', 'th',
     'label', 'button', 'strong', 'em', 'b', 'i', 'small', 'mark', 'del', 'ins', 'sub', 'sup'
   ];
-  
+
   let candidateElements = [];
-  
+
   // First pass: get elements by common text selectors
   textSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     candidateElements.push(...elements);
   });
-  
+
   // Second pass: add any other elements with text content
   allElements.forEach(element => {
     if (hasTextContent(element) && !candidateElements.includes(element)) {
       candidateElements.push(element);
     }
   });
-  
+
   console.log(`Page Scanner: Found ${candidateElements.length} candidate text elements`);
 
   candidateElements.forEach((element, index) => {
@@ -808,11 +901,11 @@ function scanPageElements() {
 
     try {
       const computedStyle = window.getComputedStyle(element);
-      
+
       // Skip invisible elements
-      if (computedStyle.display === 'none' || 
-          computedStyle.visibility === 'hidden' || 
-          computedStyle.opacity === '0') {
+      if (computedStyle.display === 'none' ||
+        computedStyle.visibility === 'hidden' ||
+        computedStyle.opacity === '0') {
         return;
       }
 
@@ -827,7 +920,9 @@ function scanPageElements() {
       }
 
       const textColor = parseCssColor(computedStyle.color);
-      const backgroundColor = getEffectiveBackgroundColor(element);
+      const bgResult = getEffectiveBackgroundColor(element);
+      const backgroundColor = bgResult.color;
+      const hasBackgroundImage = bgResult.hasBackgroundImage;
 
       if (!textColor || !backgroundColor) {
         console.log('Page Scanner: Skipping element - no color info', element);
@@ -841,7 +936,7 @@ function scanPageElements() {
       // Convert colors to hex
       const textHex = toHex(effectiveTextColor);
       const bgHex = toHex(backgroundColor);
-      
+
       if (!textHex || !bgHex) {
         console.log('Page Scanner: Skipping element - color conversion failed', textColor, backgroundColor);
         return;
@@ -849,21 +944,21 @@ function scanPageElements() {
 
       // Calculate contrast ratio
       const contrastRatio = calculateContrastRatio(textHex, bgHex);
-      
+
       if (isNaN(contrastRatio) || contrastRatio <= 0) {
         console.log('Page Scanner: Skipping element - invalid contrast ratio', contrastRatio);
         return;
       }
-      
+
       // Determine text size category
       const fontSize = parseFloat(computedStyle.fontSize);
       const fontWeight = computedStyle.fontWeight;
       const isLargeText = fontSize >= 18 || (fontSize >= 14 && (fontWeight === 'bold' || parseInt(fontWeight) >= 700));
-      
+
       // Check WCAG compliance
       const minRatio = isLargeText ? 3 : 4.5; // AA standard
       const minRatioAAA = isLargeText ? 4.5 : 7; // AAA standard
-      
+
       const passesAA = contrastRatio >= minRatio;
       const passesAAA = contrastRatio >= minRatioAAA;
 
@@ -888,6 +983,7 @@ function scanPageElements() {
           fontSize,
           fontWeight
         },
+        hasBackgroundImage,
         position: {
           top: rect.top + window.scrollY,
           left: rect.left + window.scrollX,

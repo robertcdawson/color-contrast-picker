@@ -1,7 +1,7 @@
 {
   "name": "WCAG Color Contrast Checker",
   "description": "A comprehensive Chrome extension for checking color contrast ratios and scanning pages for WCAG accessibility compliance with live visual overlays.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "manifest_version": 3,
   "action": {
     "default_title": "WCAG Color Contrast Checker",
@@ -41,8 +41,12 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["dist/*"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "dist/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ],
   "minimum_chrome_version": "88"

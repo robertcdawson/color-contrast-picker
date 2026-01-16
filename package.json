@@ -1,6 +1,6 @@
 {
   "name": "color-contrast-picker",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A comprehensive color contrast picker with WCAG compliance checking and live page scanning capabilities",
   "main": "src/main.js",
   "scripts": {
@@ -23,8 +23,7 @@
   ],
   "author": "Robert Dawson",
   "license": "MIT",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.22.0",
     "@babel/preset-env": "^7.22.0",
