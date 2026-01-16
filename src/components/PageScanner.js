@@ -1,4 +1,4 @@
-import { calculateContrastRatio, getWCAGLevel } from '../utils/contrast';
+import { calculateContrastRatio, getWCAGLevel } from '../utils/contrast.js';
 
 export class PageScanner {
   constructor() {

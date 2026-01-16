@@ -1,10 +1,10 @@
-import { ColorPicker } from './components/ColorPicker';
-import { ContrastAnalyzer } from './components/ContrastAnalyzer';
-import { ThemeManager } from './components/ThemeManager';
-import { PageScanner } from './components/PageScanner';
+import { ColorPicker } from './components/ColorPicker.js';
+import { ContrastAnalyzer } from './components/ContrastAnalyzer.js';
+import { ThemeManager } from './components/ThemeManager.js';
+import { PageScanner } from './components/PageScanner.js';
 
 // Import contrast calculation utilities
-import { calculateContrastRatio, getWCAGLevel } from './utils/contrast';
+import { calculateContrastRatio, getWCAGLevel } from './utils/contrast.js';
 
 // Collapsible section manager
 class CollapsibleManager {
@@ -16,13 +16,13 @@ class CollapsibleManager {
   init() {
     // Find all collapsible sections
     const toggles = document.querySelectorAll('.section-toggle');
-    
+
     toggles.forEach(toggle => {
       if (!toggle) return; // Skip if toggle is null
-      
+
       const contentId = toggle.id.replace('Toggle', 'Content');
       const content = document.getElementById(contentId);
-      
+
       if (content && toggle.addEventListener) {
         this.sections.set(toggle.id, {
           toggle,
@@ -62,7 +62,7 @@ class CollapsibleManager {
 
     // Update UI
     toggle.setAttribute('aria-expanded', newState.toString());
-    
+
     if (newState) {
       content.classList.add('expanded');
     } else {
@@ -119,27 +119,45 @@ class ColorHistoryManager {
   }
 
   addColorPair(foreground, background) {
+    if (!foreground || !background) return;
+
+    // Check if the most recent item is identical to avoid duplicates at the top
+    if (this.history.length > 0) {
+      const last = this.history[0];
+      if (last.foreground === foreground && last.background === background) {
+        return;
+      }
+    }
+
     const pair = { foreground, background, timestamp: Date.now() };
-    
-    // Remove existing identical pair
+
+    // Remove existing identical pair anywhere in history to move it to top
     this.history = this.history.filter(
       item => !(item.foreground === foreground && item.background === background)
     );
-    
+
     // Add to beginning
     this.history.unshift(pair);
-    
+
     // Limit size
     if (this.history.length > this.maxHistory) {
       this.history = this.history.slice(0, this.maxHistory);
     }
-    
+
     this.saveHistory();
     this.updateHistoryDisplay();
   }
 
   updateHistoryDisplay() {
     const container = document.getElementById('colorHistory');
+    const badge = document.getElementById('historyCount');
+
+    // Update badge
+    if (badge) {
+      badge.textContent = this.history.length;
+      badge.classList.toggle('hidden', this.history.length === 0);
+    }
+
     if (!container) return;
 
     if (this.history.length === 0) {
@@ -190,7 +208,7 @@ class HexInputManager {
     if (foregroundHex) {
       this.setupHexInput(foregroundHex, 'foreground');
     }
-    
+
     if (backgroundHex) {
       this.setupHexInput(backgroundHex, 'background');
     }
@@ -200,15 +218,15 @@ class HexInputManager {
     // Format input as user types
     input.addEventListener('input', (e) => {
       let value = e.target.value.replace(/[^0-9a-fA-F]/g, '');
-      
+
       if (value.length > 6) {
         value = value.slice(0, 6);
       }
-      
+
       if (value.length > 0 && !value.startsWith('#')) {
         value = '#' + value;
       }
-      
+
       e.target.value = value;
     });
 
@@ -303,17 +321,51 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // Debounce function for history updates
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Debounced history adder (500ms delay to avoid saving every keystroke)
+    const debouncedAddHistory = debounce((foreground, background) => {
+      colorHistoryManager.addColorPair(foreground, background);
+    }, 1000);
+
     // Listen for color changes to update history and hex inputs
     document.addEventListener('colorChanged', (e) => {
       const { foreground, background } = e.detail;
-      
+
       // Update hex inputs
       hexInputManager.updateHexInput('foreground', foreground);
       hexInputManager.updateHexInput('background', background);
-      
-      // Add to history
-      colorHistoryManager.addColorPair(foreground, background);
+
+      // Add to history (debounced)
+      debouncedAddHistory(foreground, background);
     });
+
+    // Update suggestions badge
+    const observer = new MutationObserver(() => {
+      const suggestionsList = document.querySelector('.suggestions-list');
+      const count = suggestionsList ? suggestionsList.children.length : 0;
+      const badge = document.getElementById('suggestionsCount');
+      if (badge) {
+        badge.textContent = count;
+        badge.classList.toggle('hidden', count === 0);
+      }
+    });
+
+    const suggestionsContainer = document.getElementById('suggestionsContainer');
+    if (suggestionsContainer) {
+      observer.observe(suggestionsContainer, { childList: true, subtree: true });
+    }
 
     // Help button handler - show simple alert instead of opening non-existent help page
     const helpButton = document.getElementById('helpButton');
@@ -331,6 +383,10 @@ Key Features:
 
 Keyboard Shortcuts:
 • Alt+1: Toggle Page Scanner
+• Alt+2: Toggle Suggestions
+• Alt+3: Toggle Recent Colors
+• Alt+4: Toggle Options
+• Alt+5: Toggle Actions
 • Ctrl+Shift+P: Scan current page
 • Ctrl+Shift+O: Toggle overlays
 • Ctrl+C: Copy colors
@@ -471,9 +527,10 @@ For more information, visit the Chrome Web Store page.`);
       }
 
       // Number keys to toggle sections
+      // Updated order: Scanner, Suggestions, History, Options, Actions
       if (e.altKey && e.key >= '1' && e.key <= '5') {
         e.preventDefault();
-        const sections = ['pageScannerToggle', 'optionsToggle', 'suggestionsToggle', 'actionsToggle', 'historyToggle'];
+        const sections = ['pageScannerToggle', 'suggestionsToggle', 'historyToggle', 'optionsToggle', 'actionsToggle'];
         const sectionId = sections[parseInt(e.key) - 1];
         if (sectionId && collapsibleManager) {
           collapsibleManager.toggleSection(sectionId);
@@ -519,15 +576,16 @@ For more information, visit the Chrome Web Store page.`);
     // Auto-expand suggestions section when colors fail WCAG
     document.addEventListener('contrastAnalyzed', (e) => {
       const { ratio, passes } = e.detail;
-      
-      if (!passes.AA && collapsibleManager) {
-        // Auto-expand suggestions if colors fail
+
+      const suggestionsToggle = document.getElementById('suggestionsToggle');
+      if (!passes.AA && collapsibleManager && suggestionsToggle && suggestionsToggle.getAttribute('aria-expanded') === 'false') {
+        // Only auto-expand if currently collapsed and failing
         collapsibleManager.expandSection('suggestionsToggle');
       }
     });
 
     console.log('Color Contrast Picker: Enhanced UI initialized');
-    
+
   } catch (error) {
     console.error('Error initializing Color Contrast Picker:', error);
     // Show a simple error message to the user

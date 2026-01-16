@@ -408,12 +408,36 @@ body {
   max-height: 800px;
 }
 
-/* Options Section */
+/* Count Badge */
+.count-badge {
+  background-color: var(--accent-primary);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: auto;
+  margin-right: var(--space-2);
+  min-width: 20px;
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.count-badge.hidden {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Options Section Inner */
+.options-content-inner {
+  padding: 0;
+}
+
 .option-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-5);
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -720,28 +744,50 @@ body {
   }
 }
 
-/* Actions Section */
-.actions-section {
-  border-bottom: 1px solid var(--border-light);
+/* Actions Section Inner */
+.actions-content-inner {
   padding: var(--space-5);
-}
-
-.actions-title {
-  margin: 0 0 var(--space-3) 0;
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.actions-content {
-  display: flex;
-  flex-direction: column;
 }
 
 .action-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: var(--space-3);
+}
+
+.action-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-button:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.action-button i {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.action-button:hover i {
+  color: var(--accent-primary);
 }
 
 /* History Section */

@@ -1,4 +1,4 @@
-import { calculateContrastRatio, getWCAGLevel, suggestBetterColor, suggestBetterBackgroundColor } from '../utils/contrast';
+import { calculateContrastRatio, getWCAGLevel, suggestBetterColor, suggestBetterBackgroundColor } from '../utils/contrast.js';
 
 export class ContrastAnalyzer {
   constructor() {

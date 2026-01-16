@@ -1,17 +1,17 @@
-import { calculateContrastRatio, getWCAGLevel, suggestBetterColor } from '../utils/contrast';
+import { calculateContrastRatio, getWCAGLevel, suggestBetterColor } from '../utils/contrast.js';
 
 export class ColorPicker {
   constructor() {
     console.log('ColorPicker: Initializing...');
-    
+
     // Color square elements
     this.foregroundSquare = document.getElementById('foregroundSquare');
     this.backgroundSquare = document.getElementById('backgroundSquare');
-    
+
     // Hex input elements
     this.foregroundHex = document.getElementById('foregroundHex');
     this.backgroundHex = document.getElementById('backgroundHex');
-    
+
     console.log('ColorPicker: Found elements:', {
       foregroundSquare: !!this.foregroundSquare,
       backgroundSquare: !!this.backgroundSquare,
@@ -25,13 +25,13 @@ export class ColorPicker {
 
     this.setupEventListeners();
     this.updateUI();
-    
+
     console.log('ColorPicker: Initialization complete');
   }
 
   setupEventListeners() {
     console.log('ColorPicker: Setting up event listeners...');
-    
+
     // Listen for color swap requests
     document.addEventListener('swapColorsRequested', () => {
       console.log('ColorPicker: Swap colors requested');
@@ -91,7 +91,7 @@ export class ColorPicker {
 
   setLoadingState(type, isLoading) {
     const square = document.getElementById(`${type}Square`);
-    
+
     if (square) {
       square.classList.toggle('loading', isLoading);
     }
@@ -100,7 +100,7 @@ export class ColorPicker {
   async activateEyedropper(colorType) {
     console.log(`ColorPicker: Activating eyedropper for ${colorType}`);
     this.setLoadingState(colorType, true);
-    
+
     try {
       // First try the modern EyeDropper API
       if (window.EyeDropper) {
@@ -127,11 +127,11 @@ export class ColorPicker {
   fallbackEyedropper(colorType) {
     console.log(`ColorPicker: Using fallback eyedropper for ${colorType}`);
     this.setLoadingState(colorType, true);
-    
+
     // First get the active tab ID through the background script
     chrome.runtime.sendMessage({ action: "getActiveTab" }, (response) => {
       console.log('ColorPicker: getActiveTab response:', response);
-      
+
       if (response.error) {
         console.error('Failed to get active tab:', response.error);
         this.setLoadingState(colorType, false);
@@ -149,7 +149,7 @@ export class ColorPicker {
         (colorResponse) => {
           console.log('ColorPicker: Content script response:', colorResponse);
           this.setLoadingState(colorType, false);
-          
+
           if (chrome.runtime.lastError) {
             console.error('Error relaying to content script:', chrome.runtime.lastError);
             this.showError(colorType, 'Failed to activate color picker');
@@ -279,10 +279,10 @@ export class ColorPicker {
     const temp = this.foregroundColor;
     this.foregroundColor = this.backgroundColor;
     this.backgroundColor = temp;
-    
+
     this.updateUI();
     this.dispatchColorChangeEvent();
-    
+
     // Show feedback
     if (window.showToast) {
       window.showToast('Colors swapped!', 'success', 1500);
@@ -291,26 +291,26 @@ export class ColorPicker {
 
   validateAndFormatColor(input) {
     if (!input) return null;
-    
+
     // Remove whitespace and convert to uppercase
     let color = input.trim().toUpperCase();
-    
+
     // Add # if missing
     if (!color.startsWith('#')) {
       color = '#' + color;
     }
-    
+
     // Validate hex format
     if (!/^#[0-9A-F]{6}$/.test(color)) {
       return null;
     }
-    
+
     return color;
   }
 
   showError(type, message) {
     console.error(`ColorPicker error (${type}):`, message);
-    
+
     // Show toast notification if available
     if (window.showToast) {
       window.showToast(message, 'error');
